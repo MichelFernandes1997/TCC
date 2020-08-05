@@ -18,7 +18,7 @@ import {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     formContainer: {
-      height: "100vh",
+      height: "98vh",
       display: "flex",
       justifyContent: "center",
     },
