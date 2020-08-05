@@ -65,8 +65,8 @@ const Ong: React.FC = () => {
       m={1}
       className={classes.formContainer}
     >
-      <form noValidate autoComplete="off">
-        <Card>
+      <form noValidate autoComplete="off" style={{ height: "60%" }}>
+        <Card style={{ height: "100%" }}>
           <CardHeader
             title={
               <Typography variant="h4" color="primary" align="center">
@@ -77,78 +77,82 @@ const Ong: React.FC = () => {
           <Divider variant="middle" />
           <CardContent
             style={{
-              height: "70%",
+              height: "100%",
             }}
           >
-            <Grid container spacing={3}>
-              <Grid item xs={4}>
-                <TextField
-                  id="nome"
-                  label="Nome"
-                  helperText=""
-                  variant="outlined"
-                  className={classes.fullWidth}
-                />
+            <Box display="flex" alignItems="center" style={{ height: "80%" }}>
+              <Grid container spacing={3}>
+                <Grid item xs={4}>
+                  <TextField
+                    id="nome"
+                    label="Nome"
+                    helperText=""
+                    variant="outlined"
+                    className={classes.fullWidth}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    id="data"
+                    label="Data de criação"
+                    helperText=""
+                    variant="outlined"
+                    className={classes.fullWidth}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    id="cnpj"
+                    label="CNPJ"
+                    helperText=""
+                    variant="outlined"
+                    className={classes.fullWidth}
+                  />
+                </Grid>
+                <Grid item xs={12}></Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    id="email"
+                    label="E-mail"
+                    helperText=""
+                    variant="outlined"
+                    className={classes.fullWidth}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    id="senha"
+                    label="senha"
+                    helperText=""
+                    variant="outlined"
+                    className={classes.fullWidth}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    id="confirmaSenha"
+                    label="Confirme a senha"
+                    helperText=""
+                    variant="outlined"
+                    className={classes.fullWidth}
+                  />
+                </Grid>
+                <Grid item xs={12}></Grid>
+                <Grid item xs={4} />
+                <Grid item xs={4}>
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    Cadastrar
+                  </Button>
+                </Grid>
+                <Grid item xs={4} />
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  id="data"
-                  label="Data de criação"
-                  helperText=""
-                  variant="outlined"
-                  className={classes.fullWidth}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  id="cnpj"
-                  label="CNPJ"
-                  helperText=""
-                  variant="outlined"
-                  className={classes.fullWidth}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  id="email"
-                  label="E-mail"
-                  helperText=""
-                  variant="outlined"
-                  className={classes.fullWidth}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  id="senha"
-                  label="senha"
-                  helperText=""
-                  variant="outlined"
-                  className={classes.fullWidth}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  id="confirmaSenha"
-                  label="Confirme a senha"
-                  helperText=""
-                  variant="outlined"
-                  className={classes.fullWidth}
-                />
-              </Grid>
-              <Grid item xs={4} />
-              <Grid item xs={4}>
-                <Button
-                  color="primary"
-                  variant="contained"
-                  style={{
-                    width: "100%",
-                  }}
-                >
-                  Cadastrar
-                </Button>
-              </Grid>
-              <Grid item xs={4} />
-            </Grid>
+            </Box>
           </CardContent>
         </Card>
       </form>
