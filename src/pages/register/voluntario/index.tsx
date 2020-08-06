@@ -63,6 +63,23 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+interface VoluntarioInput {
+  nomeCompleto: string;
+  cpf: string;
+  data: Date;
+  email: string;
+  senha: string;
+}
+
+interface InfoSenha {
+  error: string | null;
+  errorSpecialsChars: string;
+  errorUpperCase: string;
+  errorLowerCase: string;
+  errorNumbers: string;
+  errorMinimumCaracteres: string;
+}
+
 const Voluntario: React.FC = () => {
   const classes = useStyles();
 
@@ -76,29 +93,27 @@ const Voluntario: React.FC = () => {
 
   const [senha, setSenha] = useState<string>("");
 
-  const [infoSenha, setInfoSenha] = useState<{
-    error: string | null;
-    errorSpecialsChars: string;
-    errorUpperCase: string;
-    errorLowerCase: string;
-    errorNumbers: string;
-    errorMinimumCaracteres: string;
-  }>({
-    error: "",
-    errorSpecialsChars: "",
-    errorUpperCase: "",
-    errorLowerCase: "",
-    errorNumbers: "",
-    errorMinimumCaracteres: "",
-  });
+  const [infoSenha, setInfoSenha] = useState<InfoSenha | null>(null);
 
-  const [infoConfirmaSenha, setInfoConfirmaSenha] = useState<string>("");
+  const [infoConfirmaSenha, setInfoConfirmaSenha] = useState<string | null>(
+    null
+  );
 
-  const [infoCpf, setInfoCpf] = useState<string>("");
+  const [infoCpf, setInfoCpf] = useState<string | null>("");
 
   const [confirmaSenha, setConfirmaSenha] = useState<string>("");
 
-  const [infoEmail, setInfoEmail] = useState<string>("");
+  const [infoEmail, setInfoEmail] = useState<string | null>(null);
+
+  const [errorData, setErrorData] = useState<boolean>(false);
+
+  const handleValidityNomeCompleto = (): boolean => {
+    if (nomeCompleto === "") {
+      return false;
+    } else {
+      return true;
+    }
+  };
 
   const handleChangeNomeCompleto = (input: string) => {
     setNomeCompleto(input);
@@ -119,7 +134,7 @@ const Voluntario: React.FC = () => {
   };
 
   const handleChangeCpf = (input: string) => {
-    var maskCpf = input.substring(0, 18);
+    var maskCpf = input.substring(0, 14);
 
     maskCpf = maskCpf.replace(/\D/g, "");
     maskCpf = maskCpf.replace(/(\d{3})(\d)/, "$1.$2");
@@ -154,65 +169,98 @@ const Voluntario: React.FC = () => {
 
     let validityMinimumCaracteres = /^[@!#$%^&*()/\\a-zA-Z0-9]{8,20}$/;
 
-    if (!validitySpecialChars.test(senha)) {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        error: null,
-        errorSpecialsChars: "* É necessário pelo menos um caractere especial",
-      }));
-    } else {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorSpecialsChars: "",
-      }));
-    }
+    if (infoSenha !== null) {
+      if (!validitySpecialChars.test(senha)) {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              error: null,
+              errorSpecialsChars:
+                "* É necessário pelo menos um caractere especial",
+            } as InfoSenha | null)
+        );
+      } else {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorSpecialsChars: "",
+            } as InfoSenha | null)
+        );
+      }
 
-    if (!validityNumbers.test(senha)) {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorNumbers: "* É necessário pelo menos um número",
-      }));
-    } else {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorNumbers: "",
-      }));
-    }
+      if (!validityNumbers.test(senha)) {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorNumbers: "* É necessário pelo menos um número",
+            } as InfoSenha | null)
+        );
+      } else {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorNumbers: "",
+            } as InfoSenha | null)
+        );
+      }
 
-    if (!validityUpperCase.test(senha)) {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorUpperCase: "* É necessário pelo menos uma letra maiúscula",
-      }));
-    } else {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorUpperCase: "",
-      }));
-    }
+      if (!validityUpperCase.test(senha)) {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorUpperCase: "* É necessário pelo menos uma letra maiúscula",
+            } as InfoSenha | null)
+        );
+      } else {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorUpperCase: "",
+            } as InfoSenha | null)
+        );
+      }
 
-    if (!validityLowerCase.test(senha)) {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorLowerCase: "* É necessário pelo menos uma letra minúscula",
-      }));
-    } else {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorLowerCase: "",
-      }));
+      if (!validityLowerCase.test(senha)) {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorLowerCase: "* É necessário pelo menos uma letra minúscula",
+            } as InfoSenha | null)
+        );
+      } else {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorLowerCase: "",
+            } as InfoSenha | null)
+        );
+      }
     }
 
     if (!validityMinimumCaracteres.test(senha)) {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorMinimumCaracteres: "* É necessário no mínimo 8 caracteres",
-      }));
+      setInfoSenha(
+        (prevState) =>
+          ({
+            ...prevState,
+            errorMinimumCaracteres: "* É necessário no mínimo 8 caracteres",
+          } as InfoSenha | null)
+      );
     } else {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorMinimumCaracteres: "",
-      }));
+      setInfoSenha(
+        (prevState) =>
+          ({
+            ...prevState,
+            errorMinimumCaracteres: "",
+          } as InfoSenha | null)
+      );
     }
   };
 
@@ -235,7 +283,29 @@ const Voluntario: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    console.log(data);
+    var infoNomeCompleto = handleValidityNomeCompleto();
+
+    if (infoEmail === "") {
+      if (infoCpf === "") {
+        if (infoConfirmaSenha === "") {
+          if (infoNomeCompleto) {
+            if (!errorData) {
+              const voluntario = {
+                nomeCompleto: nomeCompleto,
+                data: data,
+                cpf: cpf,
+                email: email,
+                senha: senha,
+              } as VoluntarioInput;
+
+              // const result = registerOng(ong);
+
+              console.log(voluntario);
+            }
+          }
+        }
+      }
+    }
   };
 
   useEffect(() => {
@@ -326,6 +396,13 @@ const Voluntario: React.FC = () => {
                       inputVariant="outlined"
                       invalidDateMessage="Formato de data inválido"
                       format="dd/MM/yyyy"
+                      onError={(error) => {
+                        if (error) {
+                          setErrorData(true);
+                        } else {
+                          setErrorData(false);
+                        }
+                      }}
                       value={data}
                       onChange={handleChangeData}
                       style={{ width: "100%" }}
@@ -358,56 +435,60 @@ const Voluntario: React.FC = () => {
                     type="password"
                     value={senha}
                     helperText={
-                      infoSenha.error === "" ? (
-                        infoSenha.error
+                      infoSenha !== null ? (
+                        infoSenha.error === "" ? (
+                          infoSenha.error
+                        ) : (
+                          <Typography variant="subtitle2" color="error">
+                            {infoSenha.errorSpecialsChars !== "" &&
+                            (infoSenha.errorNumbers !== "" ||
+                              infoSenha.errorUpperCase !== "" ||
+                              infoSenha.errorLowerCase !== "" ||
+                              infoSenha.errorMinimumCaracteres !== "") ? (
+                              <p>{infoSenha.errorSpecialsChars}</p>
+                            ) : (
+                              infoSenha.errorSpecialsChars
+                            )}
+                            {infoSenha.errorNumbers !== "" &&
+                            (infoSenha.errorSpecialsChars !== "" ||
+                              infoSenha.errorUpperCase !== "" ||
+                              infoSenha.errorLowerCase !== "" ||
+                              infoSenha.errorMinimumCaracteres !== "") ? (
+                              <p>{infoSenha.errorNumbers}</p>
+                            ) : (
+                              infoSenha.errorNumbers
+                            )}
+                            {infoSenha.errorUpperCase !== "" &&
+                            (infoSenha.errorSpecialsChars !== "" ||
+                              infoSenha.errorNumbers !== "" ||
+                              infoSenha.errorLowerCase !== "" ||
+                              infoSenha.errorMinimumCaracteres !== "") ? (
+                              <p>{infoSenha.errorUpperCase}</p>
+                            ) : (
+                              infoSenha.errorUpperCase
+                            )}
+                            {infoSenha.errorLowerCase !== "" &&
+                            (infoSenha.errorUpperCase !== "" ||
+                              infoSenha.errorNumbers !== "" ||
+                              infoSenha.errorSpecialsChars !== "" ||
+                              infoSenha.errorMinimumCaracteres !== "") ? (
+                              <p>{infoSenha.errorLowerCase}</p>
+                            ) : (
+                              infoSenha.errorLowerCase
+                            )}
+                            {infoSenha.errorMinimumCaracteres !== "" &&
+                            (infoSenha.errorUpperCase !== "" ||
+                              infoSenha.errorNumbers !== "" ||
+                              infoSenha.errorSpecialsChars !== "" ||
+                              infoSenha.errorLowerCase !== "") ? (
+                              <p>{infoSenha.errorMinimumCaracteres}</p>
+                            ) : (
+                              infoSenha.errorMinimumCaracteres
+                            )}
+                          </Typography>
+                        )
                       ) : (
-                        <Typography variant="subtitle2" color="error">
-                          {infoSenha.errorSpecialsChars !== "" &&
-                          (infoSenha.errorNumbers !== "" ||
-                            infoSenha.errorUpperCase !== "" ||
-                            infoSenha.errorLowerCase !== "" ||
-                            infoSenha.errorMinimumCaracteres !== "") ? (
-                            <p>{infoSenha.errorSpecialsChars}</p>
-                          ) : (
-                            infoSenha.errorSpecialsChars
-                          )}
-                          {infoSenha.errorNumbers !== "" &&
-                          (infoSenha.errorSpecialsChars !== "" ||
-                            infoSenha.errorUpperCase !== "" ||
-                            infoSenha.errorLowerCase !== "" ||
-                            infoSenha.errorMinimumCaracteres !== "") ? (
-                            <p>{infoSenha.errorNumbers}</p>
-                          ) : (
-                            infoSenha.errorNumbers
-                          )}
-                          {infoSenha.errorUpperCase !== "" &&
-                          (infoSenha.errorSpecialsChars !== "" ||
-                            infoSenha.errorNumbers !== "" ||
-                            infoSenha.errorLowerCase !== "" ||
-                            infoSenha.errorMinimumCaracteres !== "") ? (
-                            <p>{infoSenha.errorUpperCase}</p>
-                          ) : (
-                            infoSenha.errorUpperCase
-                          )}
-                          {infoSenha.errorLowerCase !== "" &&
-                          (infoSenha.errorUpperCase !== "" ||
-                            infoSenha.errorNumbers !== "" ||
-                            infoSenha.errorSpecialsChars !== "" ||
-                            infoSenha.errorMinimumCaracteres !== "") ? (
-                            <p>{infoSenha.errorLowerCase}</p>
-                          ) : (
-                            infoSenha.errorLowerCase
-                          )}
-                          {infoSenha.errorMinimumCaracteres !== "" &&
-                          (infoSenha.errorUpperCase !== "" ||
-                            infoSenha.errorNumbers !== "" ||
-                            infoSenha.errorSpecialsChars !== "" ||
-                            infoSenha.errorLowerCase !== "") ? (
-                            <p>{infoSenha.errorMinimumCaracteres}</p>
-                          ) : (
-                            infoSenha.errorMinimumCaracteres
-                          )}
-                        </Typography>
+                        ""
                       )
                     }
                     variant="outlined"

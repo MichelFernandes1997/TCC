@@ -24,6 +24,8 @@ import {
   KeyboardDatePicker,
 } from "@material-ui/pickers";
 
+import registerOng from "../../../servicos/register/ong";
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     formContainer: {
@@ -63,6 +65,23 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+interface OngInput {
+  nome: string;
+  data: Date;
+  cnpj: string;
+  email: string;
+  senha: string;
+}
+
+interface InfoSenha {
+  error: string | null;
+  errorSpecialsChars: string;
+  errorUpperCase: string;
+  errorLowerCase: string;
+  errorNumbers: string;
+  errorMinimumCaracteres: string;
+}
+
 const Ong: React.FC = () => {
   const classes = useStyles();
 
@@ -76,29 +95,27 @@ const Ong: React.FC = () => {
 
   const [senha, setSenha] = useState<string>("");
 
-  const [infoSenha, setInfoSenha] = useState<{
-    error: string | null;
-    errorSpecialsChars: string;
-    errorUpperCase: string;
-    errorLowerCase: string;
-    errorNumbers: string;
-    errorMinimumCaracteres: string;
-  }>({
-    error: "",
-    errorSpecialsChars: "",
-    errorUpperCase: "",
-    errorLowerCase: "",
-    errorNumbers: "",
-    errorMinimumCaracteres: "",
-  });
+  const [infoSenha, setInfoSenha] = useState<InfoSenha | null>(null);
 
-  const [infoConfirmaSenha, setInfoConfirmaSenha] = useState<string>("");
+  const [infoConfirmaSenha, setInfoConfirmaSenha] = useState<string | null>(
+    null
+  );
 
-  const [infoCnpj, setInfoCnpj] = useState<string>("");
+  const [infoCnpj, setInfoCnpj] = useState<string | null>(null);
 
   const [confirmaSenha, setConfirmaSenha] = useState<string>("");
 
-  const [infoEmail, setInfoEmail] = useState<string>("");
+  const [infoEmail, setInfoEmail] = useState<string | null>(null);
+
+  const [errorData, setErrorData] = useState<boolean>(false);
+
+  const handleValidityNome = (): boolean => {
+    if (nome === "") {
+      return false;
+    } else {
+      return true;
+    }
+  };
 
   const handleChangeNome = (input: string) => {
     setNome(input);
@@ -155,65 +172,98 @@ const Ong: React.FC = () => {
 
     let validityMinimumCaracteres = /^[@!#$%^&*()/\\a-zA-Z0-9]{8,20}$/;
 
-    if (!validitySpecialChars.test(senha)) {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        error: null,
-        errorSpecialsChars: "* É necessário pelo menos um caractere especial",
-      }));
-    } else {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorSpecialsChars: "",
-      }));
-    }
+    if (infoSenha !== null) {
+      if (!validitySpecialChars.test(senha)) {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              error: null,
+              errorSpecialsChars:
+                "* É necessário pelo menos um caractere especial",
+            } as InfoSenha | null)
+        );
+      } else {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorSpecialsChars: "",
+            } as InfoSenha | null)
+        );
+      }
 
-    if (!validityNumbers.test(senha)) {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorNumbers: "* É necessário pelo menos um número",
-      }));
-    } else {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorNumbers: "",
-      }));
-    }
+      if (!validityNumbers.test(senha)) {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorNumbers: "* É necessário pelo menos um número",
+            } as InfoSenha | null)
+        );
+      } else {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorNumbers: "",
+            } as InfoSenha | null)
+        );
+      }
 
-    if (!validityUpperCase.test(senha)) {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorUpperCase: "* É necessário pelo menos uma letra maiúscula",
-      }));
-    } else {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorUpperCase: "",
-      }));
-    }
+      if (!validityUpperCase.test(senha)) {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorUpperCase: "* É necessário pelo menos uma letra maiúscula",
+            } as InfoSenha | null)
+        );
+      } else {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorUpperCase: "",
+            } as InfoSenha | null)
+        );
+      }
 
-    if (!validityLowerCase.test(senha)) {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorLowerCase: "* É necessário pelo menos uma letra minúscula",
-      }));
-    } else {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorLowerCase: "",
-      }));
+      if (!validityLowerCase.test(senha)) {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorLowerCase: "* É necessário pelo menos uma letra minúscula",
+            } as InfoSenha | null)
+        );
+      } else {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorLowerCase: "",
+            } as InfoSenha | null)
+        );
+      }
     }
 
     if (!validityMinimumCaracteres.test(senha)) {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorMinimumCaracteres: "* É necessário no mínimo 8 caracteres",
-      }));
+      setInfoSenha(
+        (prevState) =>
+          ({
+            ...prevState,
+            errorMinimumCaracteres: "* É necessário no mínimo 8 caracteres",
+          } as InfoSenha | null)
+      );
     } else {
-      setInfoSenha((prevState) => ({
-        ...prevState,
-        errorMinimumCaracteres: "",
-      }));
+      setInfoSenha(
+        (prevState) =>
+          ({
+            ...prevState,
+            errorMinimumCaracteres: "",
+          } as InfoSenha | null)
+      );
     }
   };
 
@@ -236,7 +286,29 @@ const Ong: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    console.log(data);
+    var infoNome = handleValidityNome();
+
+    if (infoEmail === "") {
+      if (infoCnpj === "") {
+        if (infoConfirmaSenha === "") {
+          if (infoNome) {
+            if (!errorData) {
+              const ong = {
+                nome: nome,
+                data: data,
+                cnpj: cnpj,
+                email: email,
+                senha: senha,
+              } as OngInput;
+
+              const result = registerOng(ong);
+
+              console.log(result);
+            }
+          }
+        }
+      }
+    }
   };
 
   useEffect(() => {
@@ -313,6 +385,13 @@ const Ong: React.FC = () => {
                       inputVariant="outlined"
                       invalidDateMessage="Formato de data inválido"
                       format="dd/MM/yyyy"
+                      onError={(error) => {
+                        if (error) {
+                          setErrorData(true);
+                        } else {
+                          setErrorData(false);
+                        }
+                      }}
                       value={data}
                       onChange={handleChangeData}
                       style={{ width: "100%" }}
@@ -361,56 +440,60 @@ const Ong: React.FC = () => {
                     type="password"
                     value={senha}
                     helperText={
-                      infoSenha.error === "" ? (
-                        infoSenha.error
+                      infoSenha !== null ? (
+                        infoSenha.error === "" ? (
+                          infoSenha.error
+                        ) : (
+                          <Typography variant="subtitle2" color="error">
+                            {infoSenha.errorSpecialsChars !== "" &&
+                            (infoSenha.errorNumbers !== "" ||
+                              infoSenha.errorUpperCase !== "" ||
+                              infoSenha.errorLowerCase !== "" ||
+                              infoSenha.errorMinimumCaracteres !== "") ? (
+                              <p>{infoSenha.errorSpecialsChars}</p>
+                            ) : (
+                              infoSenha.errorSpecialsChars
+                            )}
+                            {infoSenha.errorNumbers !== "" &&
+                            (infoSenha.errorSpecialsChars !== "" ||
+                              infoSenha.errorUpperCase !== "" ||
+                              infoSenha.errorLowerCase !== "" ||
+                              infoSenha.errorMinimumCaracteres !== "") ? (
+                              <p>{infoSenha.errorNumbers}</p>
+                            ) : (
+                              infoSenha.errorNumbers
+                            )}
+                            {infoSenha.errorUpperCase !== "" &&
+                            (infoSenha.errorSpecialsChars !== "" ||
+                              infoSenha.errorNumbers !== "" ||
+                              infoSenha.errorLowerCase !== "" ||
+                              infoSenha.errorMinimumCaracteres !== "") ? (
+                              <p>{infoSenha.errorUpperCase}</p>
+                            ) : (
+                              infoSenha.errorUpperCase
+                            )}
+                            {infoSenha.errorLowerCase !== "" &&
+                            (infoSenha.errorUpperCase !== "" ||
+                              infoSenha.errorNumbers !== "" ||
+                              infoSenha.errorSpecialsChars !== "" ||
+                              infoSenha.errorMinimumCaracteres !== "") ? (
+                              <p>{infoSenha.errorLowerCase}</p>
+                            ) : (
+                              infoSenha.errorLowerCase
+                            )}
+                            {infoSenha.errorMinimumCaracteres !== "" &&
+                            (infoSenha.errorUpperCase !== "" ||
+                              infoSenha.errorNumbers !== "" ||
+                              infoSenha.errorSpecialsChars !== "" ||
+                              infoSenha.errorLowerCase !== "") ? (
+                              <p>{infoSenha.errorMinimumCaracteres}</p>
+                            ) : (
+                              infoSenha.errorMinimumCaracteres
+                            )}
+                          </Typography>
+                        )
                       ) : (
-                        <Typography variant="subtitle2" color="error">
-                          {infoSenha.errorSpecialsChars !== "" &&
-                          (infoSenha.errorNumbers !== "" ||
-                            infoSenha.errorUpperCase !== "" ||
-                            infoSenha.errorLowerCase !== "" ||
-                            infoSenha.errorMinimumCaracteres !== "") ? (
-                            <p>{infoSenha.errorSpecialsChars}</p>
-                          ) : (
-                            infoSenha.errorSpecialsChars
-                          )}
-                          {infoSenha.errorNumbers !== "" &&
-                          (infoSenha.errorSpecialsChars !== "" ||
-                            infoSenha.errorUpperCase !== "" ||
-                            infoSenha.errorLowerCase !== "" ||
-                            infoSenha.errorMinimumCaracteres !== "") ? (
-                            <p>{infoSenha.errorNumbers}</p>
-                          ) : (
-                            infoSenha.errorNumbers
-                          )}
-                          {infoSenha.errorUpperCase !== "" &&
-                          (infoSenha.errorSpecialsChars !== "" ||
-                            infoSenha.errorNumbers !== "" ||
-                            infoSenha.errorLowerCase !== "" ||
-                            infoSenha.errorMinimumCaracteres !== "") ? (
-                            <p>{infoSenha.errorUpperCase}</p>
-                          ) : (
-                            infoSenha.errorUpperCase
-                          )}
-                          {infoSenha.errorLowerCase !== "" &&
-                          (infoSenha.errorUpperCase !== "" ||
-                            infoSenha.errorNumbers !== "" ||
-                            infoSenha.errorSpecialsChars !== "" ||
-                            infoSenha.errorMinimumCaracteres !== "") ? (
-                            <p>{infoSenha.errorLowerCase}</p>
-                          ) : (
-                            infoSenha.errorLowerCase
-                          )}
-                          {infoSenha.errorMinimumCaracteres !== "" &&
-                          (infoSenha.errorUpperCase !== "" ||
-                            infoSenha.errorNumbers !== "" ||
-                            infoSenha.errorSpecialsChars !== "" ||
-                            infoSenha.errorLowerCase !== "") ? (
-                            <p>{infoSenha.errorMinimumCaracteres}</p>
-                          ) : (
-                            infoSenha.errorMinimumCaracteres
-                          )}
-                        </Typography>
+                        ""
                       )
                     }
                     variant="outlined"

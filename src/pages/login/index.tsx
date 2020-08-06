@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Grid,
@@ -72,9 +72,45 @@ const Login: React.FC = () => {
 
   const history = useHistory();
 
+  const [email, setEmail] = useState<string>("");
+
+  const [senha, setSenha] = useState<string>("");
+
+  const [infoEmail, setInfoEmail] = useState<string>("");
+
+  const handleValidityEmail = () => {
+    const regexValidityEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+    if (!regexValidityEmail.test(email)) {
+      setInfoEmail("O email digitado não possui um formato válido");
+    } else {
+      setInfoEmail("");
+    }
+  };
+
+  const handleChangeEmail = (input: string) => {
+    setEmail(input);
+  };
+
+  const handleChangeSenha = (input: string) => {
+    setSenha(input);
+  };
+
   const handleSendTo = (event: React.MouseEvent<HTMLElement>) => {
     history.push(event.currentTarget.dataset.uri as string);
   };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    console.log(email, senha);
+  };
+
+  useEffect(() => {
+    if (email !== "") {
+      handleValidityEmail();
+    }
+  }, [email]);
 
   return (
     <Box
@@ -134,6 +170,7 @@ const Login: React.FC = () => {
                   width: "100%",
                   height: "100%",
                 }}
+                onSubmit={handleSubmit}
               >
                 <Card
                   style={{
@@ -166,18 +203,27 @@ const Login: React.FC = () => {
                           <TextField
                             id="email"
                             label="Email"
-                            helperText=""
+                            value={email}
+                            helperText={
+                              <Typography variant="subtitle2" color="error">
+                                {infoEmail}
+                              </Typography>
+                            }
                             variant="outlined"
                             className={classes.emailInput}
+                            onChange={(e) => handleChangeEmail(e.target.value)}
                           />
                         </Grid>
                         <Grid item xs={12} className={classes.align}>
                           <TextField
                             id="senha"
                             label="Senha"
-                            helperText=""
+                            type="password"
+                            value={senha}
+                            helperText="Lembre-se que a senha deve ter no mínimo uma letra maiúscula, uma minúscula, um número, um caractere especial e no mínimo 8 caracteres"
                             variant="outlined"
                             className={classes.senhaInput}
+                            onChange={(e) => handleChangeSenha(e.target.value)}
                           />
                         </Grid>
                         <Grid item xs={12} className={classes.align}>
@@ -189,6 +235,7 @@ const Login: React.FC = () => {
                           <Button
                             color="primary"
                             variant="contained"
+                            type="submit"
                             style={{
                               width: "80%",
                               maxWidth: "400px",
