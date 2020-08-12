@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 
+import { AuthProvider } from "./contexts/auth";
+
 import {
   createMuiTheme,
   ThemeProvider,
@@ -26,8 +28,10 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Rotas />
+      <AuthProvider>
+        <CssBaseline />
+        <Rotas />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

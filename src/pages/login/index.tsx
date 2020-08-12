@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+
+import AuthContext from "../../contexts/auth";
 
 import {
   Grid,
@@ -69,6 +71,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Login: React.FC = () => {
   const classes = useStyles();
+
+  const { Logar } = useContext(AuthContext);
 
   const history = useHistory();
 
