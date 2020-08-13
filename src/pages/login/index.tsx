@@ -46,7 +46,6 @@ const useStyles = makeStyles((theme: Theme) =>
       height: "100vh",
       display: "flex",
       justifyContent: "center",
-      border: "2px solid green",
     },
     paper: {
       padding: theme.spacing(2),
@@ -55,7 +54,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     align: {
       textAlign: "center",
-      border: "2px solid red",
     },
     logoOngs: {
       width: "100%",
@@ -115,7 +113,7 @@ const Login: React.FC = () => {
     if (email !== "") {
       handleValidityEmail();
     }
-  }, [email, handleValidityEmail]);
+  }, [email]);
 
   return (
     <Box
@@ -125,61 +123,67 @@ const Login: React.FC = () => {
       m={1}
       className={classes.formContainer}
     >
-      <Grid container>
+      <Grid container spacing={2} style={{ height: "100%" }}>
         <Grid item xs={6}>
           <Grid
             container
             spacing={1}
             style={{
-              border: "2px solid black",
               height: "100%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <Grid item xs={12} className={classes.align}>
-              <img
-                src={Ong}
-                alt="Logo da landing page"
-                className={classes.logoOngs}
-              />
-            </Grid>
-            <Grid item xs={12} className={classes.align}>
-              <Typography variant="subtitle1" color="primary" gutterBottom>
-                Não possui cadastro no UniOng? Então escolha uma das formas de
-                cadastro
-              </Typography>
-            </Grid>
-            <Grid item xs={6} className={classes.align}>
-              <Button
-                variant="contained"
-                color="primary"
-                style={{ width: "100%" }}
-                data-uri="/register/voluntario"
-                onClick={handleSendTo}
-              >
-                Voluntário
-              </Button>
-            </Grid>
-            <Grid item xs={6} className={classes.align}>
-              <Button
-                variant="contained"
-                color="primary"
-                style={{ width: "70%" }}
-                data-uri="/register/ong"
-                onClick={handleSendTo}
-              >
-                ONG
-              </Button>
+            <Grid container>
+              <Grid item xs={12} className={classes.align}>
+                <img
+                  src={Ong}
+                  alt="Logo da landing page"
+                  className={classes.logoOngs}
+                />
+              </Grid>
+              <Grid item xs={12} className={classes.align}>
+                <Typography variant="subtitle1" color="primary" gutterBottom>
+                  Não possui cadastro no UniOng? Então escolha uma das formas de
+                  cadastro
+                </Typography>
+              </Grid>
+              <Grid item xs={6} className={classes.align}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  style={{ width: "95%", maxWidth: "450px" }}
+                  data-uri="/register/voluntario"
+                  onClick={handleSendTo}
+                >
+                  Voluntário
+                </Button>
+              </Grid>
+              <Grid item xs={6} className={classes.align}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  style={{ width: "95%", maxWidth: "450px" }}
+                  data-uri="/register/ong"
+                  onClick={handleSendTo}
+                >
+                  ONG
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={6} style={{ height: "100%", border: "2px solid pink" }}>
+        <Grid item xs={6} style={{ height: "100%" }}>
           <Grid
             container
             spacing={1}
-            style={{ height: "100%", border: "0px solid yellow" }}
+            style={{
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
             <Grid item xs={12}>
               <form
@@ -188,6 +192,8 @@ const Login: React.FC = () => {
                 style={{
                   width: "100%",
                   height: "100%",
+                  minHeight: "420px",
+                  maxHeight: "620px",
                 }}
                 onSubmit={handleSubmit}
               >

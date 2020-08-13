@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
       border: "1px solid white",
     },
     fullWidth: {
-      width: "99%",
+      width: "100%",
     },
     fullSize: {
       width: "99%",
@@ -106,6 +106,8 @@ const Voluntario: React.FC = () => {
   const [infoEmail, setInfoEmail] = useState<string | null>(null);
 
   const [errorData, setErrorData] = useState<boolean>(false);
+
+  const [windowWidth, setWindowWidth] = useState<number | null>(null);
 
   const handleValidityNomeCompleto = (): boolean => {
     if (nomeCompleto === "") {
@@ -332,6 +334,20 @@ const Voluntario: React.FC = () => {
     }
   }, [senha]);
 
+  useEffect(() => {
+    function handleResize() {
+      setWindowWidth(window.innerWidth);
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, [window]);
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth);
+  }, []);
+
   return (
     <Box
       display="flex"
@@ -340,12 +356,7 @@ const Voluntario: React.FC = () => {
       m={1}
       className={classes.formContainer}
     >
-      <form
-        noValidate
-        autoComplete="off"
-        style={{ height: "60%" }}
-        onSubmit={handleSubmit}
-      >
+      <form noValidate autoComplete="off" onSubmit={handleSubmit}>
         <Card style={{ height: "100%" }}>
           <CardHeader
             title={
@@ -362,7 +373,10 @@ const Voluntario: React.FC = () => {
           >
             <Box display="flex" alignItems="center" style={{ height: "80%" }}>
               <Grid container spacing={3}>
-                <Grid item xs={6}>
+                <Grid
+                  item
+                  xs={windowWidth !== null ? (windowWidth < 850 ? 12 : 5) : 5}
+                >
                   <TextField
                     id="nomeCompleto"
                     label="Nome Completo"
@@ -373,7 +387,10 @@ const Voluntario: React.FC = () => {
                     onChange={(e) => handleChangeNomeCompleto(e.target.value)}
                   />
                 </Grid>
-                <Grid item xs={3}>
+                <Grid
+                  item
+                  xs={windowWidth !== null ? (windowWidth < 850 ? 12 : 3) : 3}
+                >
                   <TextField
                     id="cpf"
                     label="CPF"
@@ -388,7 +405,10 @@ const Voluntario: React.FC = () => {
                     onChange={(e) => handleChangeCpf(e.target.value)}
                   />
                 </Grid>
-                <Grid item xs={3}>
+                <Grid
+                  item
+                  xs={windowWidth !== null ? (windowWidth < 850 ? 12 : 4) : 4}
+                >
                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <KeyboardDatePicker
                       id="date-picker-dialog"
@@ -412,8 +432,10 @@ const Voluntario: React.FC = () => {
                     />
                   </MuiPickersUtilsProvider>
                 </Grid>
-                <Grid item xs={12}></Grid>
-                <Grid item xs={4}>
+                <Grid
+                  item
+                  xs={windowWidth !== null ? (windowWidth < 850 ? 12 : 4) : 4}
+                >
                   <TextField
                     id="email"
                     label="E-mail"
@@ -428,7 +450,10 @@ const Voluntario: React.FC = () => {
                     onChange={(e) => handleChangeEmail(e.target.value)}
                   />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid
+                  item
+                  xs={windowWidth !== null ? (windowWidth < 850 ? 12 : 4) : 4}
+                >
                   <TextField
                     id="senha"
                     label="senha"
@@ -496,7 +521,10 @@ const Voluntario: React.FC = () => {
                     onChange={(e) => handleChangeSenha(e.target.value)}
                   />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid
+                  item
+                  xs={windowWidth !== null ? (windowWidth < 850 ? 12 : 4) : 4}
+                >
                   <TextField
                     id="confirmaSenha"
                     label="Confirme a senha"
