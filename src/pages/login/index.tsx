@@ -43,10 +43,10 @@ const useStyles = makeStyles((theme: Theme) =>
       width: "99vw",
     },*/
     formContainer: {
-      height: "98vh",
-      minHeight: "900px",
+      height: "100vh",
       display: "flex",
       justifyContent: "center",
+      border: "2px solid green",
     },
     paper: {
       padding: theme.spacing(2),
@@ -55,6 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     align: {
       textAlign: "center",
+      border: "2px solid red",
     },
     logoOngs: {
       width: "100%",
@@ -114,7 +115,7 @@ const Login: React.FC = () => {
     if (email !== "") {
       handleValidityEmail();
     }
-  }, [email]);
+  }, [email, handleValidityEmail]);
 
   return (
     <Box
@@ -124,9 +125,19 @@ const Login: React.FC = () => {
       m={1}
       className={classes.formContainer}
     >
-      <Grid container spacing={3}>
+      <Grid container>
         <Grid item xs={6}>
-          <Grid container spacing={1}>
+          <Grid
+            container
+            spacing={1}
+            style={{
+              border: "2px solid black",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <Grid item xs={12} className={classes.align}>
               <img
                 src={Ong}
@@ -144,7 +155,7 @@ const Login: React.FC = () => {
               <Button
                 variant="contained"
                 color="primary"
-                style={{ width: "70%" }}
+                style={{ width: "100%" }}
                 data-uri="/register/voluntario"
                 onClick={handleSendTo}
               >
@@ -164,8 +175,12 @@ const Login: React.FC = () => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={6}>
-          <Grid container spacing={1} style={{ height: "100%" }}>
+        <Grid item xs={6} style={{ height: "100%", border: "2px solid pink" }}>
+          <Grid
+            container
+            spacing={1}
+            style={{ height: "100%", border: "0px solid yellow" }}
+          >
             <Grid item xs={12}>
               <form
                 noValidate
@@ -192,11 +207,7 @@ const Login: React.FC = () => {
                     }}
                   />
                   <Divider />
-                  <CardContent
-                    style={{
-                      height: "83.9%",
-                    }}
-                  >
+                  <CardContent>
                     <Box
                       display="flex"
                       alignItems="center"
