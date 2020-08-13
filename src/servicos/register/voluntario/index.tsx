@@ -1,35 +1,35 @@
 import axios from "axios";
 
-interface OngInput {
-  nome: string;
-  dataCriacao: Date;
-  cnpj: string;
+interface VoluntarioInput {
+  nomeCompleto: string;
+  dataNascimento: Date;
+  cpf: string;
   email: string;
-  descricao: string;
   senha: string;
 }
 
 interface Response {
-  ong: {
+  voluntario: {
     id: number;
     nome: string;
-    dataCriacao: Date;
-    cnpj: string;
+    dataNascimento: Date;
+    cpf: string;
     email: string;
-    descricao: string;
     updated_at: string;
     created_at: string;
     deleted_at: string;
   };
 }
 
-export default async function registerOng(ong: OngInput): Promise<Response> {
-  const url = "http://uniong-api.local/api/ong";
+export default async function registerVoluntario(
+  voluntario: VoluntarioInput
+): Promise<Response> {
+  const url = "http://uniong-api.local/api/voluntario";
 
   const headers = { "Content-Type": "application/json" } as object;
 
   let result = axios
-    .post(url, ong, headers)
+    .post(url, voluntario, headers)
     .then((result) => result.data)
     .catch((error) => {
       if (error.response) {

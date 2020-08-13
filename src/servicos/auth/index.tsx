@@ -18,13 +18,13 @@ export async function Logout(): Promise<ResponseLogout> {
   const options = {
     method: "POST",
     headers: {
-      "content-type": "application/x-www-form-urlencoded",
+      "content-type": "application/json",
     },
-    url: "http://auth.local/api/logout",
+    url: "http://uniong-api.local/api/logout",
   } as object;
 
   axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem(
-    "@RNladetec:token"
+    "@RNUniOng:token"
   )}`;
 
   const response = await axios(options);
@@ -35,21 +35,11 @@ export async function Logout(): Promise<ResponseLogout> {
 export default async function Login(
   credentials: Credentials
 ): Promise<Response> {
-  const params = {
-    username: credentials.username,
-    password: credentials.password,
-  };
-
-  const data = Object.entries(params)
-    // eslint-disable-next-line implicit-arrow-linebreak
-    .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
-    .join("&");
-
   const options = {
     method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    data,
-    url: "http://auth.local/api/login",
+    headers: { "content-type": "application/json" },
+    credentials,
+    url: "http://uniong-api.local/api/login",
     withCredentials: true,
   } as object;
 

@@ -7,6 +7,8 @@ import Loading from "../../components/generals/loading";
 
 import registerOng from "../../servicos/register/ong";
 
+import registerVoluntario from "../../servicos/register/voluntario";
+
 interface Children {
   children: ReactNode;
 }
@@ -36,6 +38,14 @@ interface OngInput {
   senha: string;
 }
 
+interface VoluntarioInput {
+  nomeCompleto: string;
+  dataNascimento: Date;
+  cpf: string;
+  email: string;
+  senha: string;
+}
+
 interface AuthContextoDados {
   logado: boolean;
   user: User | null;
@@ -43,6 +53,9 @@ interface AuthContextoDados {
   Logar(credentials: Credentials): Promise<void>;
   Deslogar(): Promise<void>;
   RegisterOng(ongInput: OngInput): Promise<boolean | undefined>;
+  RegisterVoluntario(
+    voluntarioInput: VoluntarioInput
+  ): Promise<boolean | undefined>;
   overrideLoading(): void;
   invalidUser: object | null;
   errorUser: boolean;
@@ -122,6 +135,20 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     }
   }
 
+  async function RegisterVoluntario(voluntarioInput: VoluntarioInput) {
+    setLoading(true);
+
+    const { voluntario } = await registerVoluntario(voluntarioInput);
+
+    if (voluntario) {
+      setLoading(false);
+
+      return true;
+    } else {
+      setLoading(false);
+    }
+  }
+
   function overrideLoading() {
     setLoading(!loading);
   }
@@ -139,6 +166,7 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
         Logar,
         Deslogar,
         RegisterOng,
+        RegisterVoluntario,
         overrideLoading,
         invalidUser,
         errorUser: !!invalidUser,

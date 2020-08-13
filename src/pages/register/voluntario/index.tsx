@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+
+import { useHistory } from "react-router-dom";
+
+import AuthContext from "../../../contexts/auth";
 
 import {
   Grid,
@@ -66,7 +70,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface VoluntarioInput {
   nomeCompleto: string;
   cpf: string;
-  data: Date;
+  dataNascimento: Date;
   email: string;
   senha: string;
 }
@@ -83,15 +87,19 @@ interface InfoSenha {
 const Voluntario: React.FC = () => {
   const classes = useStyles();
 
-  const [nomeCompleto, setNomeCompleto] = useState<string>("");
+  const history = useHistory();
+
+  const { RegisterVoluntario } = useContext(AuthContext);
+
+  const [nomeCompleto, setNomeCompleto] = useState<string | null>("");
 
   const [data, setData] = useState<Date | null>(null);
 
-  const [cpf, setCpf] = useState<string>("");
+  const [cpf, setCpf] = useState<string | null>("");
 
-  const [email, setEmail] = useState<string>("");
+  const [email, setEmail] = useState<string | null>("");
 
-  const [senha, setSenha] = useState<string>("");
+  const [senha, setSenha] = useState<string | null>("");
 
   const [infoSenha, setInfoSenha] = useState<InfoSenha | null>(null);
 
@@ -101,11 +109,11 @@ const Voluntario: React.FC = () => {
 
   const [infoCpf, setInfoCpf] = useState<string | null>("");
 
-  const [confirmaSenha, setConfirmaSenha] = useState<string>("");
+  const [confirmaSenha, setConfirmaSenha] = useState<string | null>("");
 
   const [infoEmail, setInfoEmail] = useState<string | null>(null);
 
-  const [errorData, setErrorData] = useState<boolean>(false);
+  const [infoData, setInfoData] = useState<string | null>(null);
 
   const [windowWidth, setWindowWidth] = useState<number | null>(null);
 
@@ -118,68 +126,166 @@ const Voluntario: React.FC = () => {
   };
 
   const handleChangeNomeCompleto = (input: string) => {
-    setNomeCompleto(input);
+    if (input === "") {
+      setNomeCompleto(null);
+    } else {
+      setNomeCompleto(input);
+    }
   };
 
   const handleChangeData = (date: Date | null) => {
+    if (infoData === "Campo obrigatório") {
+      setInfoData(null);
+    }
+
     setData(date);
   };
 
   const handleValidityCpf = () => {
-    const regexValidityCpf = /^[0-9]{3}\.?[0-9]{3}\.?[0-9]{3}\-?[0-9]{2}$/;
+    if (cpf !== null) {
+      const regexValidityCpf = /^[0-9]{3}\.?[0-9]{3}\.?[0-9]{3}\-?[0-9]{2}$/;
 
-    if (!regexValidityCpf.test(cpf)) {
-      setInfoCpf("O cpf digitado está incorreto");
+      if (!regexValidityCpf.test(cpf)) {
+        setInfoCpf("O cpf digitado está incorreto");
+      } else {
+        setInfoCpf("");
+      }
     } else {
-      setInfoCpf("");
+      setInfoCpf(null);
     }
   };
 
   const handleChangeCpf = (input: string) => {
-    var maskCpf = input.substring(0, 14);
+    if (input !== "") {
+      var maskCpf = input.substring(0, 14);
 
-    maskCpf = maskCpf.replace(/\D/g, "");
-    maskCpf = maskCpf.replace(/(\d{3})(\d)/, "$1.$2");
-    maskCpf = maskCpf.replace(/(\d{3})(\d)/, "$1.$2");
-    maskCpf = maskCpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+      maskCpf = maskCpf.replace(/\D/g, "");
+      maskCpf = maskCpf.replace(/(\d{3})(\d)/, "$1.$2");
+      maskCpf = maskCpf.replace(/(\d{3})(\d)/, "$1.$2");
+      maskCpf = maskCpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 
-    setCpf(maskCpf);
+      setCpf(maskCpf);
+    } else {
+      setCpf(null);
+    }
   };
 
   const handleValidityEmail = () => {
-    const regexValidityEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    if (email !== null) {
+      const regexValidityEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
-    if (!regexValidityEmail.test(email)) {
-      setInfoEmail("O email digitado não possui um formato válido");
+      if (!regexValidityEmail.test(email)) {
+        setInfoEmail("O email digitado não possui um formato válido");
+      } else {
+        setInfoEmail("");
+      }
     } else {
-      setInfoEmail("");
+      setInfoEmail(null);
     }
   };
 
   const handleChangeEmail = (input: string) => {
-    setEmail(input);
+    if (input !== "") {
+      setEmail(input);
+    } else {
+      setEmail(null);
+    }
   };
 
   const handleValiditySenha = () => {
-    let validitySpecialChars = /^(?=.*[@!#$%^&*()/\\])/; // /^(?=.*[@!#$%^&*()/\\])(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[@!#$%^&*()/\\a-zA-Z0-9]{8,20}$/;
+    if (senha !== null) {
+      let validitySpecialChars = /^(?=.*[@!#$%^&*()/\\])/; // /^(?=.*[@!#$%^&*()/\\])(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[@!#$%^&*()/\\a-zA-Z0-9]{8,20}$/;
 
-    let validityNumbers = /^(?=.*[0-9])/;
+      let validityNumbers = /^(?=.*[0-9])/;
 
-    let validityUpperCase = /^(?=.*[A-Z])/;
+      let validityUpperCase = /^(?=.*[A-Z])/;
 
-    let validityLowerCase = /^(?=.*[a-z])/;
+      let validityLowerCase = /^(?=.*[a-z])/;
 
-    let validityMinimumCaracteres = /^[@!#$%^&*()/\\a-zA-Z0-9]{8,20}$/;
+      let validityMinimumCaracteres = /^[@!#$%^&*()/\\a-zA-Z0-9]{8,20}$/;
 
-    if (infoSenha !== null) {
-      if (!validitySpecialChars.test(senha)) {
+      if (infoSenha !== null) {
+        if (!validitySpecialChars.test(senha)) {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                error: null,
+                errorSpecialsChars:
+                  "* É necessário pelo menos um caractere especial",
+              } as InfoSenha | null)
+          );
+        } else {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorSpecialsChars: "",
+              } as InfoSenha | null)
+          );
+        }
+
+        if (!validityNumbers.test(senha)) {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorNumbers: "* É necessário pelo menos um número",
+              } as InfoSenha | null)
+          );
+        } else {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorNumbers: "",
+              } as InfoSenha | null)
+          );
+        }
+
+        if (!validityUpperCase.test(senha)) {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorUpperCase: "* É necessário pelo menos uma letra maiúscula",
+              } as InfoSenha | null)
+          );
+        } else {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorUpperCase: "",
+              } as InfoSenha | null)
+          );
+        }
+
+        if (!validityLowerCase.test(senha)) {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorLowerCase: "* É necessário pelo menos uma letra minúscula",
+              } as InfoSenha | null)
+          );
+        } else {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorLowerCase: "",
+              } as InfoSenha | null)
+          );
+        }
+      }
+
+      if (!validityMinimumCaracteres.test(senha)) {
         setInfoSenha(
           (prevState) =>
             ({
               ...prevState,
-              error: null,
-              errorSpecialsChars:
-                "* É necessário pelo menos um caractere especial",
+              errorMinimumCaracteres: "* É necessário no mínimo 8 caracteres",
             } as InfoSenha | null)
         );
       } else {
@@ -187,99 +293,45 @@ const Voluntario: React.FC = () => {
           (prevState) =>
             ({
               ...prevState,
-              errorSpecialsChars: "",
+              errorMinimumCaracteres: "",
             } as InfoSenha | null)
         );
       }
-
-      if (!validityNumbers.test(senha)) {
-        setInfoSenha(
-          (prevState) =>
-            ({
-              ...prevState,
-              errorNumbers: "* É necessário pelo menos um número",
-            } as InfoSenha | null)
-        );
-      } else {
-        setInfoSenha(
-          (prevState) =>
-            ({
-              ...prevState,
-              errorNumbers: "",
-            } as InfoSenha | null)
-        );
-      }
-
-      if (!validityUpperCase.test(senha)) {
-        setInfoSenha(
-          (prevState) =>
-            ({
-              ...prevState,
-              errorUpperCase: "* É necessário pelo menos uma letra maiúscula",
-            } as InfoSenha | null)
-        );
-      } else {
-        setInfoSenha(
-          (prevState) =>
-            ({
-              ...prevState,
-              errorUpperCase: "",
-            } as InfoSenha | null)
-        );
-      }
-
-      if (!validityLowerCase.test(senha)) {
-        setInfoSenha(
-          (prevState) =>
-            ({
-              ...prevState,
-              errorLowerCase: "* É necessário pelo menos uma letra minúscula",
-            } as InfoSenha | null)
-        );
-      } else {
-        setInfoSenha(
-          (prevState) =>
-            ({
-              ...prevState,
-              errorLowerCase: "",
-            } as InfoSenha | null)
-        );
-      }
-    }
-
-    if (!validityMinimumCaracteres.test(senha)) {
-      setInfoSenha(
-        (prevState) =>
-          ({
-            ...prevState,
-            errorMinimumCaracteres: "* É necessário no mínimo 8 caracteres",
-          } as InfoSenha | null)
-      );
     } else {
-      setInfoSenha(
-        (prevState) =>
-          ({
-            ...prevState,
-            errorMinimumCaracteres: "",
-          } as InfoSenha | null)
-      );
+      setInfoSenha(null);
     }
   };
 
   const handleChangeSenha = (input: string) => {
-    setSenha(input);
+    if (input !== "") {
+      setSenha(input);
+    } else {
+      setSenha(null);
+    }
   };
 
   const handleValidityConfirmaSenha = () => {
-    if (confirmaSenha !== senha) {
-      setInfoConfirmaSenha("As senhas digitadas não são iguais");
+    if (confirmaSenha !== null) {
+      if (confirmaSenha !== senha) {
+        setInfoConfirmaSenha("As senhas digitadas não são iguais");
+      } else {
+        setInfoConfirmaSenha("");
+      }
     } else {
-      setInfoConfirmaSenha("");
+      setInfoConfirmaSenha(null);
     }
   };
 
   const handleChangeConfirmaSenha = (input: string) => {
-    setConfirmaSenha(input);
+    if (input !== "") {
+      setConfirmaSenha(input);
+    } else {
+      setConfirmaSenha(null);
+    }
+  };
+
+  const handleSendTo = (uri: string) => {
+    history.push(uri);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -287,25 +339,62 @@ const Voluntario: React.FC = () => {
 
     var infoNomeCompleto = handleValidityNomeCompleto();
 
-    if (infoEmail === "") {
-      if (infoCpf === "") {
-        if (infoConfirmaSenha === "") {
-          if (infoNomeCompleto) {
-            if (!errorData) {
-              const voluntario = {
-                nomeCompleto: nomeCompleto,
-                data: data,
-                cpf: cpf,
-                email: email,
-                senha: senha,
-              } as VoluntarioInput;
+    var formInvalido = false as boolean;
 
-              // const result = registerOng(ong);
+    if (infoEmail === null) {
+      formInvalido = true;
 
-              console.log(voluntario);
-            }
-          }
-        }
+      setInfoEmail("Campo obrigatório");
+    }
+
+    if (infoCpf === null) {
+      formInvalido = true;
+
+      setInfoCpf("Campo obrigatório");
+    }
+
+    if (infoSenha === null) {
+      formInvalido = true;
+
+      setInfoSenha({
+        error: "Campo obrigatório",
+        errorSpecialsChars: "",
+        errorUpperCase: "",
+        errorLowerCase: "",
+        errorNumbers: "",
+        errorMinimumCaracteres: "",
+      });
+    }
+
+    if (infoConfirmaSenha === null) {
+      formInvalido = true;
+
+      setInfoConfirmaSenha("Campo obrigatório");
+    }
+
+    if (!infoNomeCompleto) {
+      formInvalido = true;
+    }
+
+    if (data === null) {
+      formInvalido = true;
+
+      setInfoData("Campo obrigatório");
+    }
+
+    if (!formInvalido) {
+      const voluntario = {
+        nomeCompleto,
+        dataNascimento: data,
+        cpf,
+        email,
+        senha,
+      } as VoluntarioInput;
+
+      const response = RegisterVoluntario(voluntario);
+
+      if (response) {
+        handleSendTo("/");
       }
     }
   };
@@ -416,13 +505,8 @@ const Voluntario: React.FC = () => {
                       inputVariant="outlined"
                       invalidDateMessage="Formato de data inválido"
                       format="dd/MM/yyyy"
-                      onError={(error) => {
-                        if (error) {
-                          setErrorData(true);
-                        } else {
-                          setErrorData(false);
-                        }
-                      }}
+                      maxDateMessage="Data de nascimento não pode ser posteior à data do dia de hoje"
+                      disableFuture={true}
                       value={data}
                       onChange={handleChangeData}
                       style={{ width: "100%" }}
@@ -431,6 +515,17 @@ const Voluntario: React.FC = () => {
                       }}
                     />
                   </MuiPickersUtilsProvider>
+                  <Typography
+                    style={
+                      infoData !== "Campo obrigatório"
+                        ? { display: "none" }
+                        : {}
+                    }
+                    variant="subtitle2"
+                    color="error"
+                  >
+                    {infoData}
+                  </Typography>
                 </Grid>
                 <Grid
                   item
@@ -461,8 +556,10 @@ const Voluntario: React.FC = () => {
                     value={senha}
                     helperText={
                       infoSenha !== null ? (
-                        infoSenha.error === "" ? (
-                          infoSenha.error
+                        infoSenha.error === "Campo obrigatório" ? (
+                          <Typography variant="subtitle2" color="error">
+                            {infoSenha.error}
+                          </Typography>
                         ) : (
                           <Typography variant="subtitle2" color="error">
                             {infoSenha.errorSpecialsChars !== "" &&
