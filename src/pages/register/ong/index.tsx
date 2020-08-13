@@ -342,7 +342,7 @@ const Ong: React.FC = () => {
     history.push(uri);
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     var infoNome = handleValidityNome();
@@ -404,7 +404,7 @@ const Ong: React.FC = () => {
         senha,
       } as OngInput;
 
-      const response = await RegisterOng(ong);
+      const response = RegisterOng(ong);
 
       if (response) {
         handleSendTo("/");
