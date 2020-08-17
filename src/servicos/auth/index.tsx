@@ -14,6 +14,35 @@ interface Credentials {
   password: string;
 }
 
+interface Voluntario {
+  user: {
+    id: number;
+    nome: string;
+    cpf: string;
+    email: string;
+    dataNascimento: string;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string;
+    token: string;
+  };
+}
+
+interface Ong {
+  user: {
+    id: number;
+    nome: string;
+    cnpj: string;
+    email: string;
+    dataCriacao: string;
+    descricao: string;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string;
+    token: string;
+  };
+}
+
 export async function Logout(): Promise<ResponseLogout> {
   const options = {
     method: "POST",
@@ -34,16 +63,29 @@ export async function Logout(): Promise<ResponseLogout> {
 
 export default async function Login(
   credentials: Credentials
-): Promise<Response> {
-  const options = {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    credentials,
-    url: "http://uniong-api.local/api/login",
-    withCredentials: true,
-  } as object;
+): Promise<Voluntario | Ong> {
+  const url = "http://uniong-api.local/api/login";
 
-  const response = await axios(options);
+  const headers = { "content-type": "application/json" } as object;
 
-  return response.data;
+  const response = axios
+    .post(url, credentials, headers)
+    .then((result) => result.data)
+    .catch((error) => {
+      if (error.response) {
+        console.log(error.response);
+
+        return null;
+      } else if (error.request) {
+        console.log(error.request);
+
+        return null;
+      } else {
+        console.log(error);
+
+        return null;
+      }
+    });
+
+  return response;
 }

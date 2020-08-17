@@ -13,9 +13,29 @@ interface Children {
   children: ReactNode;
 }
 
-interface User {
-  username: string;
+interface Voluntario {
+  id: number;
+  nome: string;
+  cpf: string;
   email: string;
+  dataNascimento: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+  token: string;
+}
+
+interface Ong {
+  id: number;
+  nome: string;
+  cnpj: string;
+  email: string;
+  dataCriacao: string;
+  descricao: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+  token: string;
 }
 
 interface InvalidUser {
@@ -48,7 +68,7 @@ interface VoluntarioInput {
 
 interface AuthContextoDados {
   logado: boolean;
-  user: User | null;
+  user: Voluntario | Ong | null;
   loading: boolean;
   Logar(credentials: Credentials): Promise<void>;
   Deslogar(): Promise<void>;
@@ -64,7 +84,7 @@ interface AuthContextoDados {
 const AuthContexto = createContext<AuthContextoDados>({} as AuthContextoDados);
 
 export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Voluntario | Ong | null>(null);
 
   const [invalidUser, setInvalidUser] = useState<InvalidUser | null>(null);
 
@@ -73,9 +93,9 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
   useEffect(() => {
     const userAuth = localStorage.getItem("@RNUniOng:auth");
 
-    const tokenUser = localStorage.getItem("@RNUniOng:token");
+    //const tokenUser = localStorage.getItem("@RNUniOng:token");
 
-    if (!!userAuth && !!tokenUser) {
+    if (!!userAuth /* && !!tokenUser */) {
       setUser(JSON.parse(userAuth));
 
       setLoading(false);
@@ -98,12 +118,14 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     setLoading(true);
 
     try {
-      const { token, user: userResponse } = await Login(credentials);
+      const { user: userResponse } = await Login(credentials);
 
-      setUser(userResponse as User);
+      if (userResponse !== null) {
+        setUser(userResponse);
+      }
 
       localStorage.setItem("@RNUniOng:auth", JSON.stringify(userResponse));
-      localStorage.setItem("@RNUniOng:token", token);
+      // localStorage.setItem("@RNUniOng:token", token);
     } catch (err) {
       setInvalidUser(err);
     }
@@ -115,7 +137,7 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     if (logout) {
       localStorage.removeItem("@RNUniOng:auth");
 
-      localStorage.removeItem("@RNUniOng:token");
+      // localStorage.removeItem("@RNUniOng:token");
 
       setUser(null);
     }

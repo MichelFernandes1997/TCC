@@ -106,7 +106,7 @@ const Login: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    console.log(email, senha);
+    Logar({ username: email, password: senha });
   };
 
   useEffect(() => {
