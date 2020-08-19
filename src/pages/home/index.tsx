@@ -1,8 +1,16 @@
 import React, { useState } from "react";
 
-import { Radio, Box, FormControlLabel } from "@material-ui/core";
+import { Radio, Box, FormControlLabel, Container } from "@material-ui/core";
 
 import CarouselSlide from "../../components/Carrousel";
+
+import ListProjetos from "../../components/Projetos/ListProjetos";
+
+import LooksOneIcon from "@material-ui/icons/LooksOne";
+
+import LooksTwoIcon from "@material-ui/icons/LooksTwo";
+
+import Looks3Icon from "@material-ui/icons/Looks3";
 
 const Home: React.FC = () => {
   const [selectedValue, setSelectedValue] = useState<number>(1);
@@ -12,13 +20,9 @@ const Home: React.FC = () => {
   };
 
   return (
-    <>
+    <Container maxWidth="xl">
       <CarouselSlide
-        content={[
-          { title: "Slide 1" },
-          { title: "Slide 2" },
-          { title: "Slide 3" },
-        ]}
+        content={[{ title: "1" }, { title: "2" }, { title: "3" }]}
         carouselSelected={selectedValue}
       />
 
@@ -35,7 +39,7 @@ const Home: React.FC = () => {
               inputProps={{ "aria-label": "ESQUERDA" }}
             />
           }
-          label="1"
+          label={<LooksOneIcon />}
           labelPlacement="bottom"
         />
         <FormControlLabel
@@ -50,7 +54,7 @@ const Home: React.FC = () => {
               inputProps={{ "aria-label": "CENTRO" }}
             />
           }
-          label="2"
+          label={<LooksTwoIcon />}
           labelPlacement="bottom"
         />
         <FormControlLabel
@@ -65,11 +69,13 @@ const Home: React.FC = () => {
               inputProps={{ "aria-label": "DIREITA" }}
             />
           }
-          label="3"
+          label={<Looks3Icon />}
           labelPlacement="bottom"
         />
       </Box>
-    </>
+
+      <ListProjetos />
+    </Container>
   );
 };
 

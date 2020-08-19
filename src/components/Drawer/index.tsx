@@ -1,15 +1,31 @@
 import React from "react";
+
 import clsx from "clsx";
+
 import { makeStyles } from "@material-ui/core/styles";
-import Drawer from "@material-ui/core/Drawer";
-import Button from "@material-ui/core/Button";
-import List from "@material-ui/core/List";
-import Divider from "@material-ui/core/Divider";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
+
+import {
+  Drawer,
+  List,
+  Divider,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+} from "@material-ui/core";
+
+import ViewListIcon from "@material-ui/icons/ViewList";
+
+import WatchLaterIcon from "@material-ui/icons/WatchLater";
+
+import HourglassFullIcon from "@material-ui/icons/HourglassFull";
+
+import HistoryIcon from "@material-ui/icons/History";
+
+import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
+
+import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted";
+
+import AddIcon from "@material-ui/icons/Add";
 
 const useStyles = makeStyles({
   list: {
@@ -24,6 +40,7 @@ type Anchor = "left";
 
 interface Props {
   open: boolean;
+  close(): void;
 }
 
 export default function TemporaryDrawer(props: Props) {
@@ -44,6 +61,8 @@ export default function TemporaryDrawer(props: Props) {
     }
 
     setState({ [anchor]: open });
+
+    props.close();
   };
 
   React.useEffect(() => {
@@ -60,26 +79,69 @@ export default function TemporaryDrawer(props: Props) {
       onKeyDown={toggleDrawer(anchor, false)}
     >
       <List>
-        {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>
-              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
+        {["Listar ONGS", "Projetos passados", "Projetos acontecendo agora"].map(
+          (text, index) => (
+            <ListItem button key={text}>
+              <ListItemIcon>
+                {text === "Projetos acontecendo agora" ? (
+                  <HourglassFullIcon />
+                ) : text === "Projetos passados" ? (
+                  <WatchLaterIcon />
+                ) : (
+                  <ViewListIcon />
+                )}
+              </ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItem>
+          )
+        )}
       </List>
       <Divider />
-      <List>
-        {["All mail", "Trash", "Spam"].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>
-              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
+      <>
+        {true ? (
+          <List>
+            {[
+              "Projetos que sou voluntário",
+              "Projetos que participei",
+              "Meus projetos que irão começar",
+            ].map((text, index) => (
+              <ListItem button key={text}>
+                <ListItemIcon>
+                  {text === "Meus projetos que irão começar" ? (
+                    <HourglassEmptyIcon />
+                  ) : text === "Projetos que participei" ? (
+                    <HistoryIcon />
+                  ) : (
+                    <FormatListBulletedIcon />
+                  )}
+                </ListItemIcon>
+                <ListItemText primary={text} />
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <List>
+            {[
+              "Meus projetos",
+              "Novo projeto",
+              "Meus projetos que irão começar",
+            ].map((text, index) => (
+              <ListItem button key={text}>
+                <ListItemIcon>
+                  {text === "Meus projetos" ? (
+                    <FormatListBulletedIcon />
+                  ) : text === "Meus projetos que irão começar" ? (
+                    <HourglassEmptyIcon />
+                  ) : (
+                    <AddIcon />
+                  )}
+                </ListItemIcon>
+                <ListItemText primary={text} />
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </>
     </div>
   );
 

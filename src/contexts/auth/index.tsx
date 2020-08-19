@@ -9,6 +9,8 @@ import registerOng from "../../servicos/register/ong";
 
 import registerVoluntario from "../../servicos/register/voluntario";
 
+import getProjetos from "../../servicos/home";
+
 interface Children {
   children: ReactNode;
 }
@@ -66,6 +68,22 @@ interface VoluntarioInput {
   senha: string;
 }
 
+interface OngProjetos {
+  nome: string;
+}
+
+interface Projetos {
+  id: number;
+  nome: string;
+  descricao: string;
+  dataInicio: string;
+  dataTermino: string;
+  updated_at: string;
+  created_at: string;
+  deleted_at: string;
+  ong: OngProjetos | null;
+}
+
 interface AuthContextoDados {
   logado: boolean;
   user: Voluntario | Ong | null;
@@ -76,6 +94,7 @@ interface AuthContextoDados {
   RegisterVoluntario(
     voluntarioInput: VoluntarioInput
   ): Promise<boolean | undefined>;
+  GetProjetos(): Promise<Array<Projetos> | false>;
   overrideLoading(): void;
   invalidUser: object | null;
   errorUser: boolean;
@@ -171,6 +190,24 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     }
   }
 
+  async function GetProjetos() {
+    const response = await getProjetos();
+
+    if (response.projetos) {
+      return response.projetos;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+  }
+
   function overrideLoading() {
     setLoading(!loading);
   }
@@ -189,6 +226,7 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
         Deslogar,
         RegisterOng,
         RegisterVoluntario,
+        GetProjetos,
         overrideLoading,
         invalidUser,
         errorUser: !!invalidUser,

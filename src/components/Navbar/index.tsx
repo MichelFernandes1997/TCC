@@ -117,6 +117,10 @@ export default function NavBar() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+  const handleCloseDrawer = () => {
+    setOpenDrawer(false);
+  };
+
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
@@ -239,7 +243,7 @@ export default function NavBar() {
       </AppBar>
       {renderMobileMenu}
       {renderMenu}
-      <TemporaryDrawer open={openDrawer} />
+      <TemporaryDrawer open={openDrawer} close={handleCloseDrawer} />
     </div>
   );
 }
