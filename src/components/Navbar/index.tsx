@@ -1,25 +1,38 @@
-import React from "react";
+import React, { useContext } from "react";
+
 import {
   fade,
   makeStyles,
   Theme,
   createStyles,
 } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import Typography from "@material-ui/core/Typography";
-import InputBase from "@material-ui/core/InputBase";
-import Badge from "@material-ui/core/Badge";
-import MenuItem from "@material-ui/core/MenuItem";
-import Menu from "@material-ui/core/Menu";
+
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  InputBase,
+  Badge,
+  MenuItem,
+  Menu,
+} from "@material-ui/core";
+
 import MenuIcon from "@material-ui/icons/Menu";
+
 import SearchIcon from "@material-ui/icons/Search";
+
 import AccountCircle from "@material-ui/icons/AccountCircle";
+
 import HomeIcon from "@material-ui/icons/Home";
+
 import MoreIcon from "@material-ui/icons/MoreVert";
 
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+
 import TemporaryDrawer from "../Drawer";
+
+import AuthContext from "../../contexts/auth";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -88,8 +101,12 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function NavBar() {
+  const { Deslogar } = useContext(AuthContext);
+
   const classes = useStyles();
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
   const [
     mobileMoreAnchorEl,
     setMobileMoreAnchorEl,
@@ -98,6 +115,7 @@ export default function NavBar() {
   const [openDrawer, setOpenDrawer] = React.useState<boolean>(false);
 
   const isMenuOpen = Boolean(anchorEl);
+
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -108,9 +126,13 @@ export default function NavBar() {
     setMobileMoreAnchorEl(null);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuClose = (logout?: true | undefined) => {
     setAnchorEl(null);
     handleMobileMenuClose();
+
+    if (logout) {
+      Deslogar();
+    }
   };
 
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -130,10 +152,11 @@ export default function NavBar() {
       keepMounted
       transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMenuOpen}
-      onClose={handleMenuClose}
+      onClose={(e) => handleMenuClose()}
     >
-      <MenuItem onClick={handleMenuClose}>Perfil</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Minha conta</MenuItem>
+      <MenuItem onClick={(e) => handleMenuClose()}>Perfil</MenuItem>
+      <MenuItem onClick={(e) => handleMenuClose()}>Minha conta</MenuItem>
+      <MenuItem onClick={(e) => handleMenuClose(true)}>Sair</MenuItem>
     </Menu>
   );
 
@@ -172,6 +195,17 @@ export default function NavBar() {
           <AccountCircle />
         </IconButton>
         <p>Perfil</p>
+      </MenuItem>
+      <MenuItem onClick={(e) => handleMenuClose(true)}>
+        <IconButton
+          aria-label="account of current user"
+          aria-controls="primary-search-account-menu"
+          aria-haspopup="true"
+          color="inherit"
+        >
+          <ExitToAppIcon />
+        </IconButton>
+        <p>Sair</p>
       </MenuItem>
     </Menu>
   );

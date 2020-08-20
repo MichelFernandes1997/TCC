@@ -16,6 +16,7 @@ interface Credentials {
 
 interface Voluntario {
   user: {
+    type: "voluntario";
     id: number;
     nome: string;
     cpf: string;
@@ -30,6 +31,7 @@ interface Voluntario {
 
 interface Ong {
   user: {
+    type: "ong";
     id: number;
     nome: string;
     cnpj: string;
@@ -43,18 +45,44 @@ interface Ong {
   };
 }
 
+interface AuthVoluntario {
+  type: "voluntario";
+  id: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  dataNascimento: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+  token: string;
+}
+
+interface AuthOng {
+  type: "ong";
+  id: number;
+  nome: string;
+  cnpj: string;
+  email: string;
+  dataCriacao: string;
+  descricao: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+  token: string;
+}
+
 export async function Logout(): Promise<ResponseLogout> {
   const options = {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
     url: "http://uniong-api.local/api/logout",
   } as object;
 
-  axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem(
-    "@RNUniOng:token"
-  )}`;
+  const auth = JSON.parse(localStorage.getItem("@RNUniOng:auth") as string) as
+    | AuthVoluntario
+    | AuthOng;
+
+  axios.defaults.headers.common.Authorization = `Bearer ${auth.token}`;
 
   const response = await axios(options);
 

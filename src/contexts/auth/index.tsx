@@ -16,6 +16,7 @@ interface Children {
 }
 
 interface Voluntario {
+  type: "voluntario";
   id: number;
   nome: string;
   cpf: string;
@@ -28,6 +29,7 @@ interface Voluntario {
 }
 
 interface Ong {
+  type: "ong";
   id: number;
   nome: string;
   cnpj: string;

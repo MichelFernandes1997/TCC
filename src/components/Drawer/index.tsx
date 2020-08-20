@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useContext, useEffect } from "react";
 
 import clsx from "clsx";
 
@@ -11,6 +11,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Dialog,
 } from "@material-ui/core";
 
 import ViewListIcon from "@material-ui/icons/ViewList";
@@ -26,6 +27,10 @@ import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
 import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted";
 
 import AddIcon from "@material-ui/icons/Add";
+
+import AuthContext from "../../contexts/auth";
+
+import FormProjeto from "../../pages/projeto/create";
 
 const useStyles = makeStyles({
   list: {
@@ -43,11 +48,41 @@ interface Props {
   close(): void;
 }
 
+interface Voluntario {
+  id: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  dataNascimento: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+  token: string;
+}
+
+interface Ong {
+  id: number;
+  nome: string;
+  cnpj: string;
+  email: string;
+  dataCriacao: string;
+  descricao: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+  token: string;
+}
+
 export default function TemporaryDrawer(props: Props) {
   const classes = useStyles();
-  const [state, setState] = React.useState({
+
+  const { user } = useContext(AuthContext);
+
+  const [state, setState] = useState({
     left: props.open,
   });
+
+  const [open, setOpen] = useState<boolean>(false);
 
   const toggleDrawer = (anchor: Anchor, open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent
@@ -65,7 +100,15 @@ export default function TemporaryDrawer(props: Props) {
     props.close();
   };
 
-  React.useEffect(() => {
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  useEffect(() => {
     if (props.open === true) {
       setState({ left: true });
     }
@@ -98,7 +141,7 @@ export default function TemporaryDrawer(props: Props) {
       </List>
       <Divider />
       <>
-        {true ? (
+        {user !== null && "cpf" in user ? (
           <List>
             {[
               "Projetos que sou voluntário",
@@ -126,18 +169,27 @@ export default function TemporaryDrawer(props: Props) {
               "Novo projeto",
               "Meus projetos que irão começar",
             ].map((text, index) => (
-              <ListItem button key={text}>
-                <ListItemIcon>
-                  {text === "Meus projetos" ? (
-                    <FormatListBulletedIcon />
-                  ) : text === "Meus projetos que irão começar" ? (
-                    <HourglassEmptyIcon />
-                  ) : (
-                    <AddIcon />
-                  )}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItem>
+              <>
+                {text !== "Novo projeto" ? (
+                  <ListItem button key={text}>
+                    <ListItemIcon>
+                      {text === "Meus projetos" ? (
+                        <FormatListBulletedIcon />
+                      ) : (
+                        <HourglassEmptyIcon />
+                      )}
+                    </ListItemIcon>
+                    <ListItemText primary={text} />
+                  </ListItem>
+                ) : (
+                  <ListItem button key={text} onClick={handleClickOpen}>
+                    <ListItemIcon>
+                      <AddIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={text} />
+                  </ListItem>
+                )}
+              </>
             ))}
           </List>
         )}
@@ -158,6 +210,16 @@ export default function TemporaryDrawer(props: Props) {
           </Drawer>
         </React.Fragment>
       ))}
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="form-dialog-title"
+        PaperProps={{
+          style: { backgroundColor: "rgba(2, 2, 2, 0.8)" },
+        }}
+      >
+        <FormProjeto ong_id={user?.id} close={handleClose} />
+      </Dialog>
     </div>
   );
 }

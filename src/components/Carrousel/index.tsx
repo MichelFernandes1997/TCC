@@ -54,6 +54,7 @@ export default function CarouselSlide(props: Props) {
   const { content, carouselSelected } = props;
   const [carouselContent, setCarouselContent] = useState(content);
   const classes = useStyles();
+  const [fade, setFade] = useState<boolean>(true);
 
   useEffect(() => {
     if (carouselSelected === 0 && carouselContent[0].title === "1") {
