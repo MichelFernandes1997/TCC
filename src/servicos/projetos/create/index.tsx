@@ -19,7 +19,6 @@ interface Response {
     endereco: string;
     updated_at: string;
     created_at: string;
-    deleted_at: string;
   };
 }
 

@@ -38,12 +38,13 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   ong_id: number | undefined;
   close(): void;
+  setNotificacao(mensagem: string | null): void;
 }
 
 export default function FormProjeto(props: Props) {
   const classes = useStyles();
 
-  const { close, ong_id } = props;
+  const { close, ong_id, setNotificacao } = props;
 
   const [nome, setNome] = useState<string>("");
 
@@ -111,6 +112,8 @@ export default function FormProjeto(props: Props) {
     }
 
     if (dataInicio !== null && dataTermino !== null && ong_id !== undefined) {
+      setEnviar(true);
+
       const response = await CreateProjeto({
         nome,
         descricao,
@@ -119,6 +122,16 @@ export default function FormProjeto(props: Props) {
         endereco,
         ong_id,
       });
+
+      if (response) {
+        setEnviar(false);
+
+        close();
+
+        setNotificacao("Projeto criado com sucesso!");
+      } else {
+        setEnviar(true);
+      }
     }
   };
 

@@ -12,7 +12,10 @@ import {
   ListItemIcon,
   ListItemText,
   Dialog,
+  Snackbar,
 } from "@material-ui/core";
+
+import { Alert, AlertTitle } from "@material-ui/lab";
 
 import ViewListIcon from "@material-ui/icons/ViewList";
 
@@ -83,6 +86,8 @@ export default function TemporaryDrawer(props: Props) {
   });
 
   const [open, setOpen] = useState<boolean>(false);
+
+  const [notificacao, setNotificacao] = useState<string | null>(null);
 
   const toggleDrawer = (anchor: Anchor, open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent
@@ -218,8 +223,23 @@ export default function TemporaryDrawer(props: Props) {
           style: { backgroundColor: "rgba(2, 2, 2, 0.8)" },
         }}
       >
-        <FormProjeto ong_id={user?.id} close={handleClose} />
+        <FormProjeto
+          ong_id={user?.id}
+          close={handleClose}
+          setNotificacao={setNotificacao}
+        />
       </Dialog>
+      <Snackbar
+        open={notificacao !== null}
+        autoHideDuration={6000}
+        onClose={() => setNotificacao(null)}
+      >
+        <Alert onClose={() => setNotificacao(null)} severity="success">
+          <AlertTitle>Success</AlertTitle>
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          {notificacao}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
