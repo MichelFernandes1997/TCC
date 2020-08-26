@@ -14,6 +14,7 @@ import {
   Theme,
   Backdrop,
   CircularProgress,
+  Container,
 } from "@material-ui/core";
 
 import Skeleton from "@material-ui/lab/Skeleton";
@@ -24,23 +25,8 @@ import AuthContext from "../../../contexts/auth";
 
 import { useHistory } from "react-router-dom";
 
-interface Ong {
-  nome: string;
-}
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    backdrop: {
-      zIndex: theme.zIndex.drawer + 1,
-      color: "#fff",
-    },
-  })
-);
-
-const ListProjetos: React.FC = () => {
-  const classes = useStyles();
-
-  const { GetProjetos, projetos, setProjetos } = useContext(AuthContext);
+const Projetos: React.FC = () => {
+  const { MeusProjetos, projetos, setProjetos, user } = useContext(AuthContext);
 
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -52,12 +38,16 @@ const ListProjetos: React.FC = () => {
 
   useEffect(() => {
     async function fetchProjetos() {
-      const response = await GetProjetos();
+      if (user) {
+        const response = await MeusProjetos(user.id);
 
-      if (response !== false) {
-        setProjetos(response);
+        if (response !== false) {
+          setProjetos(response);
+        }
       }
     }
+
+    setLoading(true);
 
     fetchProjetos();
 
@@ -76,8 +66,15 @@ const ListProjetos: React.FC = () => {
 
   if (loading) {
     return (
-      <>
-        <Grid container spacing={6} style={{ marginTop: "4%" }}>
+      <Container
+        maxWidth="xl"
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          display: "flex",
+        }}
+      >
+        <Grid container spacing={6} style={{ marginTop: "2%" }}>
           {[0, 1, 2, 3, 4, 5, 6, 7].map((conteudo, indice) => (
             <Grid item xs={3}>
               <Card>
@@ -110,13 +107,20 @@ const ListProjetos: React.FC = () => {
             </Grid>
           ))}
         </Grid>
-      </>
+      </Container>
     );
   } else {
     return (
-      <Grid container spacing={6} style={{ marginTop: "4%" }}>
-        {projetos?.map((projeto, indice) =>
-          indice > 2 ? (
+      <Container
+        maxWidth="xl"
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          display: "flex",
+        }}
+      >
+        <Grid container spacing={6} style={{ marginTop: "2%" }}>
+          {projetos?.map((projeto, indice) => (
             <Grid item xs={3}>
               <Card>
                 <CardMedia
@@ -151,13 +155,11 @@ const ListProjetos: React.FC = () => {
                 </CardActions>
               </Card>
             </Grid>
-          ) : (
-            ""
-          )
-        )}
-      </Grid>
+          ))}
+        </Grid>
+      </Container>
     );
   }
 };
 
-export default ListProjetos;
+export default Projetos;

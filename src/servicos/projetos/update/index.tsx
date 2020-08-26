@@ -26,7 +26,7 @@ interface Ong {
 }
 
 interface Response {
-  projetos: Array<{
+  projeto: {
     id: number;
     nome: string;
     descricao: string;
@@ -40,12 +40,23 @@ interface Response {
       id: number;
       nome: string;
     } | null;
-  }>;
+  };
   error: string | null;
 }
 
-export default async function getProjetos(): Promise<Response> {
-  const url = "http://uniong-api.local/api/projeto";
+interface UpdateAttributes {
+  nome?: string;
+  descricao?: string;
+  dataInicio?: Date;
+  dataTermino?: Date;
+  endereco?: string;
+}
+
+export default async function updateProjeto(
+  id: number,
+  atributtes: UpdateAttributes
+): Promise<Response> {
+  const url = `http://uniong-api.local/api/projeto/${id}`;
 
   const user = JSON.parse(localStorage.getItem("@RNUniOng:auth") as string) as
     | Voluntario
@@ -53,8 +64,12 @@ export default async function getProjetos(): Promise<Response> {
 
   axios.defaults.headers.common.Authorization = `Bearer ${user.token}`;
 
+  const data = atributtes;
+
+  const headers = { "Content-Type": "application/json" } as object;
+
   let result = axios
-    .get(url)
+    .put(url, data, headers)
     .then((result) => result.data)
     .catch((error) => {
       if (error.response) {

@@ -1,5 +1,7 @@
 import React, { useContext } from "react";
 
+import { useHistory } from "react-router-dom";
+
 import {
   fade,
   makeStyles,
@@ -118,6 +120,8 @@ export default function NavBar() {
 
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
+  const history = useHistory();
+
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -141,6 +145,10 @@ export default function NavBar() {
 
   const handleCloseDrawer = () => {
     setOpenDrawer(false);
+  };
+
+  const handleSendTo = (uri: string) => {
+    history.push(uri);
   };
 
   const menuId = "primary-search-account-menu";
@@ -172,7 +180,11 @@ export default function NavBar() {
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <IconButton aria-label="show 4 new mails" color="inherit">
+        <IconButton
+          aria-label="show 4 new mails"
+          color="inherit"
+          onClick={() => handleSendTo("/")}
+        >
           <Badge color="secondary">
             <HomeIcon />
           </Badge>
@@ -241,7 +253,11 @@ export default function NavBar() {
           </div>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
-            <IconButton aria-label="Exibir página inicial" color="inherit">
+            <IconButton
+              aria-label="Exibir página inicial"
+              color="inherit"
+              onClick={() => handleSendTo("/")}
+            >
               <Badge color="secondary">
                 <HomeIcon />
               </Badge>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 
 import { Radio, Box, FormControlLabel, Container } from "@material-ui/core";
 
@@ -21,10 +21,7 @@ const Home: React.FC = () => {
 
   return (
     <Container maxWidth="xl">
-      <CarouselSlide
-        content={[{ title: "1" }, { title: "2" }, { title: "3" }]}
-        carouselSelected={selectedValue}
-      />
+      <CarouselSlide carouselSelected={selectedValue} />
 
       <Box display="flex" justifyContent="center" style={{ width: "100%" }}>
         <FormControlLabel

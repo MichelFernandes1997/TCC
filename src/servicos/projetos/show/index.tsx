@@ -25,8 +25,13 @@ interface Ong {
   token: string;
 }
 
+interface OngProjeto {
+  id: number;
+  nome: string;
+}
+
 interface Response {
-  projetos: Array<{
+  projeto: {
     id: number;
     nome: string;
     descricao: string;
@@ -36,16 +41,13 @@ interface Response {
     updated_at: string;
     created_at: string;
     deleted_at: string;
-    ong: {
-      id: number;
-      nome: string;
-    } | null;
-  }>;
+    ong: OngProjeto | null;
+  };
   error: string | null;
 }
 
-export default async function getProjetos(): Promise<Response> {
-  const url = "http://uniong-api.local/api/projeto";
+export default async function showProjeto(id: number): Promise<Response> {
+  const url = `http://uniong-api.local/api/projeto/${id}`;
 
   const user = JSON.parse(localStorage.getItem("@RNUniOng:auth") as string) as
     | Voluntario

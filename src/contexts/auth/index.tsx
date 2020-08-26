@@ -11,6 +11,14 @@ import registerVoluntario from "../../servicos/register/voluntario";
 
 import getProjetos from "../../servicos/home";
 
+import meusProjetos from "../../servicos/projetos/list";
+
+import allProjetos from "../../servicos/projetos/all";
+
+import showProjeto from "../../servicos/projetos/show";
+
+import updateProjeto from "../../servicos/projetos/update";
+
 interface Children {
   children: ReactNode;
 }
@@ -71,6 +79,7 @@ interface VoluntarioInput {
 }
 
 interface OngProjetos {
+  id: number;
   nome: string;
 }
 
@@ -80,10 +89,19 @@ interface Projetos {
   descricao: string;
   dataInicio: string;
   dataTermino: string;
+  endereco: string;
   updated_at: string;
   created_at: string;
   deleted_at: string;
   ong: OngProjetos | null;
+}
+
+interface UpdateAttributes {
+  nome?: string;
+  descricao?: string;
+  dataInicio?: Date;
+  dataTermino?: Date;
+  endereco?: string;
 }
 
 interface AuthContextoDados {
@@ -97,9 +115,18 @@ interface AuthContextoDados {
     voluntarioInput: VoluntarioInput
   ): Promise<boolean | undefined>;
   GetProjetos(): Promise<Array<Projetos> | false>;
+  MeusProjetos(ongId: number): Promise<Array<Projetos> | false>;
+  ProjetosAll(): Promise<Array<Projetos> | false>;
+  ShowProjeto(id: number): Promise<Projetos | false>;
+  UpdateProjeto(
+    id: number,
+    attributtes: UpdateAttributes
+  ): Promise<Projetos | false>;
   overrideLoading(): void;
   invalidUser: object | null;
   errorUser: boolean;
+  projetos: Array<Projetos> | null;
+  setProjetos(projetos: Array<Projetos> | null): void;
 }
 
 const AuthContexto = createContext<AuthContextoDados>({} as AuthContextoDados);
@@ -110,6 +137,8 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
   const [invalidUser, setInvalidUser] = useState<InvalidUser | null>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [projetos, setProjetos] = useState<Array<Projetos> | null>(null);
 
   useEffect(() => {
     const userAuth = localStorage.getItem("@RNUniOng:auth");
@@ -161,6 +190,8 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
       // localStorage.removeItem("@RNUniOng:token");
 
       setUser(null);
+
+      window.location.href = "/";
     }
   }
 
@@ -210,6 +241,78 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     }
   }
 
+  async function MeusProjetos(ongId: number) {
+    const response = await meusProjetos(ongId);
+
+    if (response.projetos) {
+      return response.projetos;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+  }
+
+  async function ProjetosAll() {
+    const response = await allProjetos();
+
+    if (response.projetos) {
+      return response.projetos;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+  }
+
+  async function ShowProjeto(id: number) {
+    const response = await showProjeto(id);
+
+    if (response.projeto) {
+      return response.projeto;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+  }
+
+  async function UpdateProjeto(id: number, attributtes: UpdateAttributes) {
+    const response = await updateProjeto(id, attributtes);
+
+    if (response.projeto) {
+      return response.projeto;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+  }
+
   function overrideLoading() {
     setLoading(!loading);
   }
@@ -229,9 +332,15 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
         RegisterOng,
         RegisterVoluntario,
         GetProjetos,
+        MeusProjetos,
+        ProjetosAll,
+        ShowProjeto,
+        UpdateProjeto,
         overrideLoading,
         invalidUser,
         errorUser: !!invalidUser,
+        projetos,
+        setProjetos,
       }}
     >
       {children}

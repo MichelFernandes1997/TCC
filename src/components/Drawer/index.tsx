@@ -1,5 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 
+import { useHistory } from "react-router-dom";
+
 import clsx from "clsx";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -89,6 +91,8 @@ export default function TemporaryDrawer(props: Props) {
 
   const [notificacao, setNotificacao] = useState<string | null>(null);
 
+  const history = useHistory();
+
   const toggleDrawer = (anchor: Anchor, open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent
   ) => {
@@ -111,6 +115,12 @@ export default function TemporaryDrawer(props: Props) {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleSendTo = (uri: string | null) => {
+    if (uri !== null) {
+      history.push(uri);
+    }
   };
 
   useEffect(() => {
@@ -176,7 +186,15 @@ export default function TemporaryDrawer(props: Props) {
             ].map((text, index) => (
               <>
                 {text !== "Novo projeto" ? (
-                  <ListItem button key={text}>
+                  <ListItem
+                    button
+                    key={text}
+                    onClick={
+                      text === "Meus projetos"
+                        ? () => handleSendTo("/meus-projetos")
+                        : () => false
+                    }
+                  >
                     <ListItemIcon>
                       {text === "Meus projetos" ? (
                         <FormatListBulletedIcon />
