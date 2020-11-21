@@ -19,6 +19,14 @@ import showProjeto from "../../servicos/projetos/show";
 
 import updateProjeto from "../../servicos/projetos/update";
 
+import startToProjetos from "../../servicos/projetos/startTo";
+
+import startedProjetos from "../../servicos/projetos/started";
+
+import passedProjetos from "../../servicos/projetos/passed";
+
+import listOngs from "../../servicos/ongs/list";
+
 interface Children {
   children: ReactNode;
 }
@@ -104,6 +112,24 @@ interface UpdateAttributes {
   endereco?: string;
 }
 
+interface ProjetoOng {
+  id: number;
+  nome: string;
+}
+
+interface Ongs {
+  id: number;
+  nome: string;
+  descricao: string;
+  dataCriacao: string;
+  cnpj: string;
+  email: string;
+  updated_at: string;
+  created_at: string;
+  deleted_at: string;
+  projeto: ProjetoOng | null;
+}
+
 interface AuthContextoDados {
   logado: boolean;
   user: Voluntario | Ong | null;
@@ -118,6 +144,10 @@ interface AuthContextoDados {
   MeusProjetos(ongId: number): Promise<Array<Projetos> | false>;
   ProjetosAll(): Promise<Array<Projetos> | false>;
   ShowProjeto(id: number): Promise<Projetos | false>;
+  StartToProjetos(ongId: number): Promise<Array<Projetos> | false>;
+  StartedProjetos(): Promise<Array<Projetos> | false>;
+  PassedProjetos(): Promise<Array<Projetos> | false>;
+  ListOngs(): Promise<Array<Ongs> | false>;
   UpdateProjeto(
     id: number,
     attributtes: UpdateAttributes
@@ -295,6 +325,78 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     }
   }
 
+  async function StartedProjetos() {
+    const response = await startedProjetos();
+
+    if (response.projetos) {
+      return response.projetos;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+  }
+
+  async function StartToProjetos(ongId: number) {
+    const response = await startToProjetos(ongId);
+
+    if (response.projetos) {
+      return response.projetos;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+  }
+
+  async function PassedProjetos() {
+    const response = await passedProjetos();
+
+    if (response.projetos) {
+      return response.projetos;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+  }
+
+  async function ListOngs() {
+    const response = await listOngs();
+
+    if (response.ongs) {
+      return response.ongs;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+  }
+
   async function UpdateProjeto(id: number, attributtes: UpdateAttributes) {
     const response = await updateProjeto(id, attributtes);
 
@@ -314,7 +416,7 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
   }
 
   function overrideLoading() {
-    setLoading(!loading);
+    setLoading((prev) => !prev);
   }
 
   if (loading) {
@@ -335,6 +437,10 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
         MeusProjetos,
         ProjetosAll,
         ShowProjeto,
+        StartToProjetos,
+        StartedProjetos,
+        PassedProjetos,
+        ListOngs,
         UpdateProjeto,
         overrideLoading,
         invalidUser,

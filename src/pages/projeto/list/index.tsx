@@ -59,8 +59,6 @@ const Projetos: React.FC = () => {
   useEffect(() => {
     if (projetos) {
       setLoading(false);
-    } else {
-      setLoading(true);
     }
   }, [projetos]);
 

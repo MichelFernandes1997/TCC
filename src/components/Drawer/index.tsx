@@ -139,7 +139,17 @@ export default function TemporaryDrawer(props: Props) {
       <List>
         {["Listar ONGS", "Projetos passados", "Projetos acontecendo agora"].map(
           (text, index) => (
-            <ListItem button key={text}>
+            <ListItem
+              button
+              key={text}
+              onClick={
+                text === "Projetos acontecendo agora"
+                  ? () => handleSendTo("/projetos-started")
+                  : text === "Projetos passados"
+                  ? () => handleSendTo("/projetos-passed")
+                  : () => handleSendTo("/ongs-list")
+              }
+            >
               <ListItemIcon>
                 {text === "Projetos acontecendo agora" ? (
                   <HourglassFullIcon />
@@ -192,7 +202,7 @@ export default function TemporaryDrawer(props: Props) {
                     onClick={
                       text === "Meus projetos"
                         ? () => handleSendTo("/meus-projetos")
-                        : () => false
+                        : () => handleSendTo("/projetos-startTo")
                     }
                   >
                     <ListItemIcon>

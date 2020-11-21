@@ -103,7 +103,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function NavBar() {
-  const { Deslogar } = useContext(AuthContext);
+  const { Deslogar, overrideLoading } = useContext(AuthContext);
 
   const classes = useStyles();
 
@@ -135,6 +135,7 @@ export default function NavBar() {
     handleMobileMenuClose();
 
     if (logout) {
+      overrideLoading();
       Deslogar();
     }
   };
@@ -191,7 +192,11 @@ export default function NavBar() {
         </IconButton>
       </MenuItem>
       <MenuItem>
-        <IconButton aria-label="show 11 new notifications" color="inherit">
+        <IconButton
+          aria-label="show 11 new notifications"
+          color="inherit"
+          onClick={() => handleSendTo("/projetos-all")}
+        >
           <Typography variant="subtitle1" color="textPrimary">
             Projetos
           </Typography>
@@ -262,7 +267,11 @@ export default function NavBar() {
                 <HomeIcon />
               </Badge>
             </IconButton>
-            <IconButton aria-label="Exibir projetos" color="inherit">
+            <IconButton
+              aria-label="Exibir projetos"
+              color="inherit"
+              onClick={() => handleSendTo("/projetos-all")}
+            >
               <Typography variant="subtitle1" color="textPrimary">
                 Projetos
               </Typography>

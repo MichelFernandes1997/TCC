@@ -19,14 +19,42 @@ import {
 
 import Skeleton from "@material-ui/lab/Skeleton";
 
+import { useHistory } from "react-router-dom";
+
 import DefaultPhoto from "../../../assets/images/default.png";
 
 import AuthContext from "../../../contexts/auth";
 
+interface OngProjeto {
+  id: number;
+  nome: string;
+}
+
+interface Projeto {
+  id: number;
+  nome: string;
+  descricao: string;
+  dataInicio: string;
+  dataTermino: string;
+  endereco: string;
+  updated_at: string;
+  created_at: string;
+  deleted_at: string;
+  ong: OngProjeto | null;
+}
+
 const ProjetosAll: React.FC = () => {
-  const { ProjetosAll, projetos, setProjetos } = useContext(AuthContext);
+  const { ProjetosAll } = useContext(AuthContext);
+
+  const [projetos, setProjetos] = useState<Array<Projeto> | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
+
+  const history = useHistory();
+
+  const handleShowProjeto = (id: number) => {
+    history.push(`/projeto-show/${id}`);
+  };
 
   useEffect(() => {
     async function fetchProjetos() {
@@ -99,43 +127,52 @@ const ProjetosAll: React.FC = () => {
         }}
       >
         <Grid container spacing={6} style={{ marginTop: "2%" }}>
-          {projetos?.map((projeto, indice) =>
-            indice > 2 ? (
-              <Grid item xs={3}>
-                <Card>
-                  <CardMedia
-                    component="img"
-                    alt="Capa do projeto"
-                    height="140"
-                    image={DefaultPhoto}
-                    title="Capa do projeto"
-                  />
-                  <CardContent>
-                    <Typography
-                      variant="body2"
-                      color="textPrimary"
-                      component="p"
+          {projetos?.map((projeto, indice) => (
+            <Grid item xs={3}>
+              <Card>
+                <CardMedia
+                  component="img"
+                  alt="Capa do projeto"
+                  height="140"
+                  image={DefaultPhoto}
+                  title="Capa do projeto"
+                />
+                <CardContent>
+                  <Typography variant="h6" color="textPrimary" component="p">
+                    {projeto.nome}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    color="textPrimary"
+                    component="p"
+                  >
+                    {"Ong: "}
+                    {projeto?.ong?.nome}
+                  </Typography>
+                  <Typography variant="body2" color="textPrimary" component="p">
+                    {projeto.descricao.length > 50
+                      ? `${projeto.descricao.substr(0, 49)}...`
+                      : projeto.descricao}
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    style={{ width: "100%" }}
+                  >
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      onClick={() => handleShowProjeto(projeto.id)}
                     >
-                      {projeto.descricao}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Box
-                      display="flex"
-                      justifyContent="center"
-                      style={{ width: "100%" }}
-                    >
-                      <Button color="primary" variant="contained">
-                        Detalhes
-                      </Button>
-                    </Box>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ) : (
-              ""
-            )
-          )}
+                      Detalhes
+                    </Button>
+                  </Box>
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
       </Container>
     );
