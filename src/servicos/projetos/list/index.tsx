@@ -44,8 +44,10 @@ interface Response {
   error: string | null;
 }
 
-export default async function meusProjetos(ongId: number): Promise<Response> {
-  const url = `http://uniong-api.local/api/list/projeto/${ongId}`;
+export default async function meusProjetos(ongId: number, url?: string): Promise<Response> {
+  if (!url) {
+    url = `http://uniong-api.local/api/list/projeto/${ongId}`;
+  }
 
   const user = JSON.parse(localStorage.getItem("@RNUniOng:auth") as string) as
     | Voluntario

@@ -173,7 +173,17 @@ export default function TemporaryDrawer(props: Props) {
               "Projetos que participei",
               "Meus projetos que irão começar",
             ].map((text, index) => (
-              <ListItem button key={text}>
+              <ListItem
+                button
+                key={text}
+                onClick={
+                  text === "Meus projetos que irão começar"
+                    ? () => handleSendTo("/projetosOfVoluntario-startTo")
+                    : text === "Projetos que participei"
+                    ? () => handleSendTo("/projetosOfVoluntario-passed")
+                    : () => handleSendTo("/projetosOfVoluntario-list")
+                }
+              >
                 <ListItemIcon>
                   {text === "Meus projetos que irão começar" ? (
                     <HourglassEmptyIcon />

@@ -12,48 +12,33 @@ interface Voluntario {
   token: string;
 }
 
-interface Ong {
-  id: number;
-  nome: string;
-  cnpj: string;
-  email: string;
-  dataCriacao: string;
-  descricao: string;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string;
-  token: string;
-}
-
-interface ProjetoOng {
+interface OngProjetos {
   id: number;
   nome: string;
 }
 
 interface Response {
-  ongs: Array<{
+  projetos: Array<{
     id: number;
     nome: string;
     descricao: string;
-    dataCriacao: string;
-    cnpj: string;
-    email: string;
+    dataInicio: string;
+    dataTermino: string;
+    endereco: string;
     updated_at: string;
     created_at: string;
     deleted_at: string;
-    projetos: Array<ProjetoOng> | null;
+    ong: OngProjetos | null;
   }>;
   error: string | null;
 }
 
-export default async function listOngs(url?: string): Promise<Response> {
+export default async function listVoluntarioProjetosPassed(voluntarioId: number, url?: string): Promise<Response> {
   if (!url) {
-    url = "http://uniong-api.local/api/ong";
+    url = `http://uniong-api.local/api/voluntario/projeto/passed/${voluntarioId}`;
   }
-
-  const user = JSON.parse(localStorage.getItem("@RNUniOng:auth") as string) as
-    | Voluntario
-    | Ong;
+  
+  const user = JSON.parse(localStorage.getItem("@RNUniOng:auth") as string) as Voluntario;
 
   axios.defaults.headers.common.Authorization = `Bearer ${user.token}`;
 

@@ -23,16 +23,18 @@ import DefaultPhoto from "../../../assets/images/default.png";
 
 import SmilePhoto from "../../../assets/images/smile.png";
 
+import { useHistory } from "react-router-dom";
+
 import AuthContext from "../../../contexts/auth";
 
 import { Pagination } from "@material-ui/lab";
 
-interface OngProjeto {
+interface ProjetoOng {
   id: number;
   nome: string;
 }
 
-interface Projeto {
+interface Projetos {
   id: number;
   nome: string;
   descricao: string;
@@ -42,7 +44,7 @@ interface Projeto {
   updated_at: string;
   created_at: string;
   deleted_at: string;
-  ong: OngProjeto | null;
+  ong: ProjetoOng | null;
 }
 
 interface Paginate {
@@ -67,12 +69,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ProjetosPassed: React.FC = () => {
+const VoluntarioListProjetos: React.FC = () => {
   const classes = useStyles();
 
-  const { PassedProjetos, user } = useContext(AuthContext);
+  const { ListVoluntarioProjetos, user } = useContext(AuthContext);
 
-  const [projetos, setProjetos] = useState<Array<Projeto> | null>(null);
+  const [projetos, setProjetos] = useState<Array<Projetos> | null>(null);
 
   const [pagination, setPagination] = useState<Paginate | null>(null);
 
@@ -82,14 +84,26 @@ const ProjetosPassed: React.FC = () => {
 
   const page = useRef<number>(0);
 
+  const history = useHistory();
+
+  const handleShowProjeto = (id: number) => {
+    history.push(`/projeto-show/${id}`);
+  };
+
   const handleChangePage = async (event: {}, value: number) => {
     if (pages.current === 1) {
       return;
     }
 
     setLoading(true);
-    
-    const response = await PassedProjetos(`${pagination?.path}?page=${value}`);
+
+    let voluntarioId = 0;
+
+    if (user !== null) {
+      voluntarioId = user.id;
+    }
+
+    const response = await ListVoluntarioProjetos(voluntarioId, `${pagination?.path}/${voluntarioId}?page=${value}`);
 
     if (response !== false) {
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -120,10 +134,10 @@ const ProjetosPassed: React.FC = () => {
   }
 
   useEffect(() => {
-    async function fetchProjetos() {
+    async function fetchListOfVoluntarioProjects() {
       if (user !== null) {
-        const response = await PassedProjetos();
-
+        const response = await ListVoluntarioProjetos(user.id);
+        
         if (response !== false) {
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           let auxProjetos = (response as unknown) as { data: []};
@@ -153,8 +167,8 @@ const ProjetosPassed: React.FC = () => {
       }
     }
 
-    fetchProjetos();
-  }, [PassedProjetos, user]);
+    fetchListOfVoluntarioProjects();
+  }, [ListVoluntarioProjetos, user]);
 
   useEffect(() => {
     if (projetos !== null) {
@@ -216,7 +230,7 @@ const ProjetosPassed: React.FC = () => {
               height: "93vh",
             }}
           >
-            <h1>Nenhum projeto aconteceu até agora!</h1>
+            <h1>Você não é voluntário em nenhum projeto acontecendo atualmente!</h1>
             <img src={SmilePhoto}></img>
           </div>
         ) : (
@@ -230,32 +244,70 @@ const ProjetosPassed: React.FC = () => {
           >
             <Grid container spacing={6} style={{ marginTop: "2%" }}>
               {projetos?.map((projeto, indice) => (
-                <Grid item xs={3}>
-                  <Card>
+                <Grid item xs={3} key={`grid${projeto.id}`}>
+                  <Card key={`card${projeto.id}`}>
                     <CardMedia
                       component="img"
-                      alt="Capa do projeto"
+                      alt="Capa da ong"
                       height="140"
                       image={DefaultPhoto}
-                      title="Capa do projeto"
+                      title="Capa da ong"
+                      key={`cardMedia${projeto.id}`}
                     />
-                    <CardContent>
-                      <Typography variant="h6" color="textPrimary" component="p">
+                    <CardContent key={`cardContent${projeto.id}`}>
+                      <Typography variant="h6" color="textPrimary" component="p" key={`typography1${projeto.id}`}>
                         {projeto.nome}
                       </Typography>
-                      <h3>Descrição: </h3>
-                      <Typography variant="body2" color="textPrimary" component="p">
+                      <h3 key={`title1${projeto.id}`}>Descrição: </h3>
+                      <Typography variant="body2" color="textPrimary" component="p" key={`typography2${projeto.id}`}>
                         {`${projeto.descricao.substr(0, 100) + "..."}`}
                       </Typography>
-                      <h3>Começou em: </h3>
-                      <Typography variant="body2" color="textPrimary">
+                      <h3 key={`title2${projeto.id}`}>Data de inicio é: </h3>
+                      <Typography variant="body2" color="textPrimary" key={`typography3${projeto.id}`}>
                         {`${new Date(projeto.dataInicio)}`}
                       </Typography>
-                      <h3>Terminou em: </h3>
-                      <Typography variant="body2" color="textPrimary" component="p">
+                      <h3 key={`title3${projeto.id}`}>Data de término é: </h3>
+                      <Typography variant="body2" color="textPrimary" component="p" key={`typography4${projeto.id}`}>
                         {`${new Date(projeto.dataTermino)}`}
                       </Typography>
+                      <h3 key={`title4${projeto.id}`}>Nome da ONG: </h3>
+                      <Typography variant="body1" color="textPrimary" component="p" key={`typography5${projeto.id}`}>
+                        {`${projeto.ong?.nome}`}
+                      </Typography>
                     </CardContent>
+                    {new Date(projeto.dataTermino).getTime() <= new Date().getTime()
+                      ? <CardActions>
+                        <Box
+                          display="flex"
+                          justifyContent="center"
+                          style={{ width: "100%" }}
+                        >
+                          <Button
+                            color="secondary"
+                            variant="contained"
+                            onClick={() => handleShowProjeto(projeto.id)}
+                          >
+                            Projeto finalizado
+                          </Button>
+
+                        </Box>
+                      </CardActions>
+                      : <CardActions>
+                        <Box
+                          display="flex"
+                          justifyContent="center"
+                          style={{ width: "100%" }}
+                        >
+                          <Button
+                            color="primary"
+                            variant="contained"
+                            onClick={() => handleShowProjeto(projeto.id)}
+                          >
+                            Detalhes
+                          </Button>
+                        </Box>
+                      </CardActions>
+                    }
                   </Card>
                 </Grid>
               ))}
@@ -272,4 +324,4 @@ const ProjetosPassed: React.FC = () => {
   }
 };
 
-export default ProjetosPassed;
+export default VoluntarioListProjetos;

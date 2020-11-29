@@ -103,7 +103,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function NavBar() {
-  const { Deslogar, overrideLoading } = useContext(AuthContext);
+  const { Deslogar } = useContext(AuthContext);
 
   const classes = useStyles();
 
@@ -130,13 +130,18 @@ export default function NavBar() {
     setMobileMoreAnchorEl(null);
   };
 
-  const handleMenuClose = (logout?: true | undefined) => {
+  const handleSendTo = (uri: string) => {
+    history.push(uri);
+  };
+
+  const handleMenuClose = async (logout?: true | undefined) => {
     setAnchorEl(null);
     handleMobileMenuClose();
 
     if (logout) {
-      overrideLoading();
-      Deslogar();
+      handleSendTo("/loading");
+
+      await Deslogar();
     }
   };
 
@@ -146,10 +151,6 @@ export default function NavBar() {
 
   const handleCloseDrawer = () => {
     setOpenDrawer(false);
-  };
-
-  const handleSendTo = (uri: string) => {
-    history.push(uri);
   };
 
   const menuId = "primary-search-account-menu";

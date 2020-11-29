@@ -27,6 +27,12 @@ import passedProjetos from "../../servicos/projetos/passed";
 
 import listOngs from "../../servicos/ongs/list";
 
+import listVoluntarioProjetos from "../../servicos/voluntarios/list";
+
+import listVoluntarioProjetosPassed from "../../servicos/voluntarios/passed";
+
+import listVoluntarioProjetosStartTo from "../../servicos/voluntarios/startTo";
+
 interface Children {
   children: ReactNode;
 }
@@ -91,6 +97,17 @@ interface OngProjetos {
   nome: string;
 }
 
+interface VoluntarioProjeto {
+  id: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  dataNascimento: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+}
+
 interface Projetos {
   id: number;
   nome: string;
@@ -104,12 +121,28 @@ interface Projetos {
   ong: OngProjetos | null;
 }
 
+interface ProjetosWithVoluntarios {
+  id: number;
+  nome: string;
+  descricao: string;
+  dataInicio: string;
+  dataTermino: string;
+  endereco: string;
+  updated_at: string;
+  created_at: string;
+  deleted_at: string;
+  ong: OngProjetos | null;
+  voluntarios: Array<VoluntarioProjeto | undefined>;
+}
+
 interface UpdateAttributes {
   nome?: string;
   descricao?: string;
   dataInicio?: Date;
   dataTermino?: Date;
   endereco?: string;
+  voluntario_id?: number;
+  detach_voluntario_id?: number;
 }
 
 interface ProjetoOng {
@@ -127,7 +160,7 @@ interface Ongs {
   updated_at: string;
   created_at: string;
   deleted_at: string;
-  projeto: ProjetoOng | null;
+  projetos: Array<ProjetoOng> | null;
 }
 
 interface AuthContextoDados {
@@ -141,22 +174,24 @@ interface AuthContextoDados {
     voluntarioInput: VoluntarioInput
   ): Promise<boolean | undefined>;
   GetProjetos(): Promise<Array<Projetos> | false>;
-  MeusProjetos(ongId: number): Promise<Array<Projetos> | false>;
-  ProjetosAll(): Promise<Array<Projetos> | false>;
-  ShowProjeto(id: number): Promise<Projetos | false>;
-  StartToProjetos(ongId: number): Promise<Array<Projetos> | false>;
-  StartedProjetos(): Promise<Array<Projetos> | false>;
-  PassedProjetos(): Promise<Array<Projetos> | false>;
-  ListOngs(): Promise<Array<Ongs> | false>;
+  MeusProjetos(ongId: number, url?: string): Promise<Array<Projetos> | false>;
+  ProjetosAll(url?: string): Promise<Array<Projetos> | false>;
+  ShowProjeto(id: number): Promise<ProjetosWithVoluntarios | false>;
+  StartToProjetos(ongId: number, url?: string): Promise<Array<Projetos> | false>;
+  StartedProjetos(url?: string): Promise<Array<Projetos> | false>;
+  PassedProjetos(url?: string): Promise<Array<Projetos> | false>;
+  ListOngs(url?: string): Promise<Array<Ongs> | false>;
   UpdateProjeto(
     id: number,
     attributtes: UpdateAttributes
-  ): Promise<Projetos | false>;
-  overrideLoading(): void;
+  ): Promise<ProjetosWithVoluntarios | false>;
   invalidUser: object | null;
   errorUser: boolean;
   projetos: Array<Projetos> | null;
   setProjetos(projetos: Array<Projetos> | null): void;
+  ListVoluntarioProjetos(voluntarioId: number, url?: string): Promise<Array<Projetos> | false>;
+  ListVoluntarioProjetosPassed(voluntarioId: number, url?: string): Promise<Array<Projetos> | false>;
+  ListVoluntarioProjetosStartTo(voluntarioId: number, url?: string): Promise<Array<Projetos> | false>;
 }
 
 const AuthContexto = createContext<AuthContextoDados>({} as AuthContextoDados);
@@ -217,8 +252,6 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     if (logout) {
       localStorage.removeItem("@RNUniOng:auth");
 
-      // localStorage.removeItem("@RNUniOng:token");
-
       setUser(null);
 
       window.location.href = "/";
@@ -271,8 +304,14 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     }
   }
 
-  async function MeusProjetos(ongId: number) {
-    const response = await meusProjetos(ongId);
+  async function MeusProjetos(ongId: number, url?: string) {
+    let response;
+
+    if (url) {
+      response = await meusProjetos(ongId, url);
+    } else {
+      response = await meusProjetos(ongId);
+    }
 
     if (response.projetos) {
       return response.projetos;
@@ -289,8 +328,14 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     }
   }
 
-  async function ProjetosAll() {
-    const response = await allProjetos();
+  async function ProjetosAll(url?: string) {
+    let response;
+
+    if (url) {
+      response = await allProjetos(url);
+    } else {
+      response = await allProjetos();
+    }
 
     if (response.projetos) {
       return response.projetos;
@@ -325,8 +370,14 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     }
   }
 
-  async function StartedProjetos() {
-    const response = await startedProjetos();
+  async function StartedProjetos(url?: string) {
+    let response;
+
+    if (url) {
+      response = await startedProjetos(url);
+    } else {
+      response = await startedProjetos();
+    }
 
     if (response.projetos) {
       return response.projetos;
@@ -343,8 +394,14 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     }
   }
 
-  async function StartToProjetos(ongId: number) {
-    const response = await startToProjetos(ongId);
+  async function StartToProjetos(ongId: number, url?: string) {
+    let response;
+
+    if (url) {
+      response = await startToProjetos(ongId, url);
+    } else {
+      response = await startToProjetos(ongId);
+    }
 
     if (response.projetos) {
       return response.projetos;
@@ -361,8 +418,14 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     }
   }
 
-  async function PassedProjetos() {
-    const response = await passedProjetos();
+  async function PassedProjetos(url?: string) {
+    let response;
+
+    if (url) {
+      response = await passedProjetos(url);
+    } else {
+      response = await passedProjetos();
+    }
 
     if (response.projetos) {
       return response.projetos;
@@ -379,8 +442,14 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     }
   }
 
-  async function ListOngs() {
-    const response = await listOngs();
+  async function ListOngs(url?: string) {
+    let response;
+
+    if (url) {
+      response = await listOngs(url);
+    } else {
+      response = await listOngs();
+    }
 
     if (response.ongs) {
       return response.ongs;
@@ -415,8 +484,76 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
     }
   }
 
-  function overrideLoading() {
-    setLoading((prev) => !prev);
+  async function ListVoluntarioProjetos(voluntarioId: number, url?: string) {
+    let response;
+
+    if (url) {
+      response = await listVoluntarioProjetos(voluntarioId, url);
+    } else {
+      response = await listVoluntarioProjetos(voluntarioId);
+    }
+
+    if (response.projetos) {
+      return response.projetos;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+  }
+
+  async function ListVoluntarioProjetosPassed(voluntarioId: number, url?: string) {
+    let response;
+
+    if (url) {
+      response = await listVoluntarioProjetosPassed(voluntarioId, url);
+    } else {
+      response = await listVoluntarioProjetosPassed(voluntarioId);
+    }
+
+    if (response.projetos) {
+      return response.projetos;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+  }
+
+  async function ListVoluntarioProjetosStartTo(voluntarioId: number, url?: string) {
+    let response;
+
+    if (url) {
+      response = await listVoluntarioProjetosStartTo(voluntarioId, url);
+    } else {
+      response = await listVoluntarioProjetosStartTo(voluntarioId);
+    }
+
+    if (response.projetos) {
+      return response.projetos;
+    } else if (response.error) {
+      if (response.error === "Unauthorized") {
+        localStorage.removeItem("@RNUniOng:auth");
+
+        setUser(null);
+      }
+
+      return false;
+    } else {
+      return false;
+    }
   }
 
   if (loading) {
@@ -442,11 +579,13 @@ export const AuthProvider: React.FC<Children> = ({ children }: Children) => {
         PassedProjetos,
         ListOngs,
         UpdateProjeto,
-        overrideLoading,
         invalidUser,
         errorUser: !!invalidUser,
         projetos,
         setProjetos,
+        ListVoluntarioProjetos,
+        ListVoluntarioProjetosPassed,
+        ListVoluntarioProjetosStartTo
       }}
     >
       {children}

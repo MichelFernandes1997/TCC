@@ -25,6 +25,17 @@ interface Ong {
   token: string;
 }
 
+interface Voluntarios {
+  id: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  dataNascimento: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+}
+
 interface Response {
   projeto: {
     id: number;
@@ -40,6 +51,7 @@ interface Response {
       id: number;
       nome: string;
     } | null;
+    voluntarios: Array<Voluntarios | undefined>;
   };
   error: string | null;
 }
@@ -50,6 +62,8 @@ interface UpdateAttributes {
   dataInicio?: Date;
   dataTermino?: Date;
   endereco?: string;
+  voluntario_id?: number;
+  detach_voluntario_id?: number;
 }
 
 export default async function updateProjeto(

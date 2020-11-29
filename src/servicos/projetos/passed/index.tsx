@@ -46,8 +46,10 @@ interface Response {
   error: string | null;
 }
 
-export default async function passedProjetos(): Promise<Response> {
-  const url = "http://uniong-api.local/api/passed/projeto";
+export default async function passedProjetos(url?: string): Promise<Response> {
+  if (!url) {
+    url = "http://uniong-api.local/api/passed/projeto";
+  }
 
   const user = JSON.parse(localStorage.getItem("@RNUniOng:auth") as string) as
     | Voluntario

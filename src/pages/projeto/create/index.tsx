@@ -81,6 +81,11 @@ export default function FormProjeto(props: Props) {
   };
 
   const handleChangeDataTermino = (date: Date | null) => {
+    console.log(dataInicio?.getTime(), date?.getTime());
+    if ((dataInicio && date) && (dataInicio?.getTime() > date?.getTime())) {
+      setInfoDataTermino("A data de término não pode ser menor que a data de inicio");
+    }
+
     setDataTermino(date);
   };
 
@@ -111,7 +116,7 @@ export default function FormProjeto(props: Props) {
       setInfoEndereco("Campo obrigatório");
     }
 
-    if (dataInicio !== null && dataTermino !== null && ong_id !== undefined) {
+    if (dataInicio !== null && dataTermino !== null && ong_id !== undefined && infoDataTermino !== "A data de término não pode ser menor que a data de inicio") {
       setEnviar(true);
 
       const response = await CreateProjeto({
@@ -139,31 +144,31 @@ export default function FormProjeto(props: Props) {
     if (nome !== "" && infoNome !== null) {
       setInfoNome(null);
     }
-  }, [nome]);
+  }, [infoNome, nome]);
 
   useEffect(() => {
     if (descricao !== "" && infoDescricao !== null) {
       setInfoDescricao(null);
     }
-  }, [descricao]);
+  }, [descricao, infoDescricao]);
 
   useEffect(() => {
     if (dataInicio !== null && infoDataInicio !== null) {
       setInfoDataInicio(null);
     }
-  }, [dataInicio]);
+  }, [dataInicio, infoDataInicio]);
 
   useEffect(() => {
     if (dataTermino !== null && infoDataTermino !== null) {
       setInfoDataTermino(null);
     }
-  }, [dataTermino]);
+  }, [dataTermino, infoDataTermino]);
 
   useEffect(() => {
     if (endereco !== "" && infoEndereco !== null) {
       setInfoEndereco(null);
     }
-  }, [endereco]);
+  }, [endereco, infoEndereco]);
 
   if (enviar) {
     return (

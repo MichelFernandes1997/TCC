@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
 
 import { useParams } from "react-router";
 
@@ -38,6 +38,17 @@ interface OngProjeto {
   nome: string;
 }
 
+interface VoluntarioProjeto {
+  id: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  dataNascimento: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+}
+
 interface Projeto {
   id: number;
   nome: string;
@@ -49,10 +60,13 @@ interface Projeto {
   created_at: string;
   deleted_at: string;
   ong: OngProjeto | null;
+  voluntarios: Array<VoluntarioProjeto | undefined>;
 }
 
 const ProjetosSHow: React.FC = () => {
-  const { id } = useParams();
+  const newLocal = useParams();
+  
+  const { id } = newLocal as {id: number};
 
   const { ShowProjeto, UpdateProjeto, user } = useContext(AuthContext);
 
@@ -110,7 +124,11 @@ const ProjetosSHow: React.FC = () => {
 
   const [loadingEndereco, setLoadingEndereco] = useState<boolean>(false);
 
+  const [loadingVoluntariar, setLoadingVoluntariar] = useState<boolean>(false);
+
   const [notificacao, setNotificacao] = useState<string | null>(null);
+
+  const [checaVoluntario, setChecaVoluntario] = useState<boolean>(false);
 
   const handleChangeDisableNome = () => {
     setDisabledNome((prev) => !prev);
@@ -313,6 +331,34 @@ const ProjetosSHow: React.FC = () => {
           setInfoDataTermino("O campo possui valor obrigatório!");
         }
       }
+    } else if (input === "voluntario_id") {
+      if (user !== null && "cpf" in user && projeto) {
+        setLoadingVoluntariar(true);
+
+        const response = await UpdateProjeto(projeto.id, { voluntario_id: user.id });
+
+        if (response !== false) {
+          setLoadingVoluntariar(false);
+
+          setProjeto(response);
+
+          setNotificacao("Agora você é um voluntario desse projeto!");
+        }
+      }
+    } else if (input === "detach_voluntario_id") {
+      if (user !== null && "cpf" in user && projeto) {
+        setLoadingVoluntariar(true);
+
+        const response = await UpdateProjeto(projeto.id, { detach_voluntario_id: user.id });
+
+        if (response !== false) {
+          setLoadingVoluntariar(false);
+
+          setProjeto(response);
+
+          setNotificacao("Agora você não é mais um voluntario desse projeto!");
+        }
+      }
     } else {
       if (!enderecoNotChange.current) {
         if (endereco !== null && endereco !== "") {
@@ -340,6 +386,21 @@ const ProjetosSHow: React.FC = () => {
     }
   };
 
+  const handleChecarVoluntario = useCallback((projeto): boolean => {
+    let returned = false;
+    
+    if (projeto?.voluntarios[0] !== undefined) {
+      projeto?.voluntarios.map((voluntario: any) => {
+        if (voluntario?.id === user?.id) {
+          returned = true;
+        }
+      });
+    }
+    
+    return returned;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     async function fetchProjetos() {
       const response = await ShowProjeto(id);
@@ -350,10 +411,12 @@ const ProjetosSHow: React.FC = () => {
     }
 
     fetchProjetos();
-  }, []);
+  }, [ShowProjeto, id]);
 
   useEffect(() => {
     if (projeto) {
+      setChecaVoluntario(handleChecarVoluntario(projeto));
+
       setLoading(false);
 
       let dateInicio = new Date(projeto.dataInicio);
@@ -366,7 +429,7 @@ const ProjetosSHow: React.FC = () => {
     } else {
       setLoading(true);
     }
-  }, [projeto]);
+  }, [handleChecarVoluntario, projeto]);
 
   if (loading) {
     return (
@@ -875,6 +938,29 @@ const ProjetosSHow: React.FC = () => {
                   </Grid>
                 ) : (
                   ""
+                )}
+                {user && 'cpf' in user ? (
+                  <Grid item xs={12} style={{ textAlign: "center", height: "70px" }}>
+                    <Button
+                      key={`voluntario${user.id}`}
+                      variant="contained"
+                      color="primary"
+                      style={loadingVoluntariar ? { height: "100%", backgroundColor: "transparent" } : { height: "100%" }}
+                      onClick={!checaVoluntario ? () => handleSendChange("voluntario_id") : () => handleSendChange("detach_voluntario_id")}
+                    >
+                      {loadingVoluntariar 
+                        ? 
+                          <CircularProgress /> 
+                        : 
+                          checaVoluntario 
+                            ? 
+                              "Desvoluntariar-se"
+                            : 
+                              "Voluntariar-se"}
+                    </Button>
+                  </Grid>
+                ) : (
+                  null
                 )}
               </Grid>
             </Grid>

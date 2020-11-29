@@ -25,6 +25,17 @@ interface Ong {
   token: string;
 }
 
+interface Voluntarios {
+  id: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  dataNascimento: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+}
+
 interface OngProjeto {
   id: number;
   nome: string;
@@ -42,6 +53,7 @@ interface Response {
     created_at: string;
     deleted_at: string;
     ong: OngProjeto | null;
+    voluntarios: Array<Voluntarios | undefined>;
   };
   error: string | null;
 }

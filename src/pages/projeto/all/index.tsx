@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 
 import {
   Grid,
@@ -23,7 +23,11 @@ import { useHistory } from "react-router-dom";
 
 import DefaultPhoto from "../../../assets/images/default.png";
 
+import SmilePhoto from "../../../assets/images/smile.png";
+
 import AuthContext from "../../../contexts/auth";
+
+import { Pagination } from "@material-ui/lab";
 
 interface OngProjeto {
   id: number;
@@ -43,30 +47,120 @@ interface Projeto {
   ong: OngProjeto | null;
 }
 
+interface Paginate {
+  current_page: number;
+  first_page_url: string;
+  from: number;
+  last_page: string;
+  next_page_url: string;
+  path: string;
+  per_page: string;
+  prev_page_url: string;
+  to: number;
+  total: number;
+  data: Array<{}>;
+}
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    '& > *': {
+      marginTop: theme.spacing(2),
+    },
+  },
+}));
+
 const ProjetosAll: React.FC = () => {
+  const classes = useStyles();
+
   const { ProjetosAll } = useContext(AuthContext);
 
   const [projetos, setProjetos] = useState<Array<Projeto> | null>(null);
+
+  const [pagination, setPagination] = useState<Paginate | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
 
   const history = useHistory();
 
+  const pages = useRef<number>(0);
+
+  const page = useRef<number>(0);
+
   const handleShowProjeto = (id: number) => {
     history.push(`/projeto-show/${id}`);
   };
+
+  const handleChangePage = async (event: {}, value: number) => {
+    if (pages.current === 1) {
+      return;
+    }
+
+    setLoading(true);
+    
+    const response = await ProjetosAll(`${pagination?.path}?page=${value}`);
+
+    if (response !== false) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      let auxProjetos = (response as unknown) as { data: []};
+      
+      setProjetos(auxProjetos.data);
+
+      let aux = (response as unknown) as Paginate;
+
+      let removeProperty = 'data';
+
+      let auxPagination = Object.keys(aux).reduce((object: any, key) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        let secondaryAux = (aux as unknown) as any;
+
+        if (key !== removeProperty) {
+          object[`${key}`] = secondaryAux[`${key}`];
+        }
+        return object
+      }, {})
+      
+      pages.current = auxPagination.last_page;
+
+      page.current = auxPagination.current_page;
+
+      setPagination(auxPagination);
+    }
+  }
 
   useEffect(() => {
     async function fetchProjetos() {
       const response = await ProjetosAll();
 
       if (response !== false) {
-        setProjetos(response);
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        let auxProjetos = (response as unknown) as { data: []};
+          
+        setProjetos(auxProjetos.data);
+
+        let aux = (response as unknown) as Paginate;
+
+        let removeProperty = 'data';
+
+        let auxPagination = Object.keys(aux).reduce((object: any, key) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          let secondaryAux = (aux as unknown) as any;
+
+          if (key !== removeProperty) {
+            object[`${key}`] = secondaryAux[`${key}`];
+          }
+          return object
+        }, {})
+        
+        pages.current = auxPagination.last_page;
+
+        page.current = auxPagination.current_page;
+
+        setPagination(auxPagination);
       }
     }
 
     fetchProjetos();
-  }, []);
+  }, [ProjetosAll]);
 
   useEffect(() => {
     if (projetos) {
@@ -117,6 +211,22 @@ const ProjetosAll: React.FC = () => {
       </Container>
     );
   } else {
+    if (projetos?.length === 0 || !projetos) {
+      return (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "93vh",
+          }}
+        >
+          <h1>Não existem projetos ainda!</h1>
+          <img src={SmilePhoto}></img>
+        </div>
+      );
+    }
+
     return (
       <Container
         maxWidth="xl"
@@ -141,38 +251,63 @@ const ProjetosAll: React.FC = () => {
                   <Typography variant="h6" color="textPrimary" component="p">
                     {projeto.nome}
                   </Typography>
+                  <h3>Ong: </h3>
                   <Typography
                     variant="subtitle1"
                     color="textPrimary"
                     component="p"
                   >
-                    {"Ong: "}
                     {projeto?.ong?.nome}
                   </Typography>
+                  <h3>Descrição: </h3>
                   <Typography variant="body2" color="textPrimary" component="p">
-                    {projeto.descricao.length > 50
-                      ? `${projeto.descricao.substr(0, 49)}...`
+                    {projeto.descricao.length > 100
+                      ? `${projeto.descricao.substr(0, 99)}...`
                       : projeto.descricao}
                   </Typography>
                 </CardContent>
-                <CardActions>
-                  <Box
-                    display="flex"
-                    justifyContent="center"
-                    style={{ width: "100%" }}
-                  >
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      onClick={() => handleShowProjeto(projeto.id)}
+                {new Date(projeto.dataTermino).getTime() <= new Date().getTime()
+                  ? <CardActions>
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      style={{ width: "100%" }}
                     >
-                      Detalhes
-                    </Button>
-                  </Box>
-                </CardActions>
+                      <Button
+                        color="secondary"
+                        variant="contained"
+                        disabled
+                        onClick={() => handleShowProjeto(projeto.id)}
+                      >
+                        Projeto finalizado
+                      </Button>
+
+                    </Box>
+                  </CardActions>
+                  : <CardActions>
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      style={{ width: "100%" }}
+                    >
+                      <Button
+                        color="primary"
+                        variant="contained"
+                        onClick={() => handleShowProjeto(projeto.id)}
+                      >
+                        Detalhes
+                      </Button>
+                    </Box>
+                  </CardActions>
+                }
               </Card>
             </Grid>
           ))}
+          <Grid item xs={12} key='pagination'>
+            <div className={classes.root} style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+              <Pagination count={pages.current} page={page.current} color="primary" onChange={handleChangePage} />
+            </div>
+          </Grid>
         </Grid>
       </Container>
     );
