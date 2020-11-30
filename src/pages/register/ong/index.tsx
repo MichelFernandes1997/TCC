@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+import React, { useState, useEffect, useContext, useRef } from "react";
 
 import { useHistory } from "react-router-dom";
 
@@ -120,11 +121,15 @@ const Ong: React.FC = () => {
 
   const [infoData, setInfoData] = useState<string | null>(null);
 
+  const [infoDescricao, setInfoDescricao] = useState<string | null>(null);
+
   const [windowWidth, setWindowWidth] = useState<number | null>(null);
 
+  const formInvalido = useRef<object>({}) as any;
+
   const handleValidityNome = () => {
-    if (nome === null) {
-      setInfoNome(null);
+    if (nome !== null) {
+      setInfoNome("");
     }
   };
 
@@ -196,8 +201,20 @@ const Ong: React.FC = () => {
     }
   };
 
+  const handleValidityDescricao = () => {
+    if (descricao !== null) {
+      setInfoDescricao("");
+    } else {
+      setInfoDescricao(null);
+    }
+  };
+
   const handleChangeDescricao = (input: string) => {
-    setDescricao(input);
+    if (input === "") {
+      setDescricao(null);
+    } else {
+      setDescricao(input);
+    }
   };
 
   const handleValiditySenha = () => {
@@ -305,6 +322,16 @@ const Ong: React.FC = () => {
             } as InfoSenha | null)
         );
       }
+
+      if (infoSenha?.error !== "") {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              error: "",
+            } as InfoSenha | null)
+        );
+      }
     } else {
       setInfoSenha(null);
     }
@@ -345,22 +372,28 @@ const Ong: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    var formInvalido = false as boolean;
-
     if (infoEmail === null) {
-      formInvalido = true;
+      formInvalido.current.infoEmail = true;
 
       setInfoEmail("Campo obrigatório");
+    } else if (infoEmail !== "") {
+      formInvalido.current.infoEmail = true;
+    } else {
+      formInvalido.current.infoEmail = false;
     }
 
     if (infoCnpj === null) {
-      formInvalido = true;
+      formInvalido.current.infoCnpj = true;
 
       setInfoCnpj("Campo obrigatório");
+    } else if (infoCnpj !== "") {
+      formInvalido.current.infoCnpj = true;
+    } else {
+      formInvalido.current.infoCnpj = false;
     }
 
     if (infoSenha === null) {
-      formInvalido = true;
+      formInvalido.current.infoSenha = true;
 
       setInfoSenha({
         error: "Campo obrigatório",
@@ -370,31 +403,47 @@ const Ong: React.FC = () => {
         errorNumbers: "",
         errorMinimumCaracteres: "",
       });
+    } else if(infoSenha.error !== "" || infoSenha.errorSpecialsChars !== "" || infoSenha.errorUpperCase !== "" || infoSenha.errorLowerCase !== "" || infoSenha.errorNumbers !== "" || infoSenha.errorMinimumCaracteres !== "") {
+      formInvalido.current.infoSenha = true;
+    } else {
+      formInvalido.current.infoSenha = false;
     }
 
     if (infoConfirmaSenha === null) {
-      formInvalido = true;
+      formInvalido.current.infoConfirmaSenha = true;
 
       setInfoConfirmaSenha("Campo obrigatório");
+    } else if (infoConfirmaSenha === "Campo obrigatório" || infoConfirmaSenha === "As senhas digitadas não são iguais") {
+      formInvalido.current.infoConfirmaSenha = true;
+    } else {
+      formInvalido.current.infoConfirmaSenha = false;
     }
 
-    if (infoNome === null) {
-      formInvalido = true;
+    if (infoNome !== "") {
+      formInvalido.current.infoNome = true;
 
       setInfoNome("Campo obrigatório");
+    } else {
+      formInvalido.current.infoNome = false;
     }
 
     if (dataCriacao === null) {
-      formInvalido = true;
+      formInvalido.current.dataCriacao = true;
 
       setInfoData("Campo obrigatório");
+    } else {
+      formInvalido.current.dataCriacao = false;
     }
 
-    if (descricao === "") {
-      formInvalido = true;
+    if (infoDescricao !== "") {
+      formInvalido.current.infoDescricao = true;
+
+      setInfoDescricao("Campo obrigatório");
+    } else {
+      formInvalido.current.infoDescricao = false;
     }
 
-    if (!formInvalido) {
+    if (!formInvalido.current.infoEmail && !formInvalido.current.infoCnpj && !formInvalido.current.infoNome && !formInvalido.current.infoConfirmaSenha && !formInvalido.current.infoSenha && !formInvalido.current.dataCriacao && !formInvalido.current.infoDescricao) {
       const ong = {
         nome,
         dataCriacao,
@@ -439,6 +488,13 @@ const Ong: React.FC = () => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [confirmaSenha]);
+
+  useEffect(() => {
+    if (descricao !== "") {
+      handleValidityDescricao();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [descricao]);
 
   useEffect(() => {
     if (senha !== "") {
@@ -566,6 +622,11 @@ const Ong: React.FC = () => {
                     label="Descricao da ONG"
                     value={descricao}
                     placeholder="Descricao"
+                    helperText={
+                      <Typography variant="subtitle2" color="error">
+                        {infoDescricao}
+                      </Typography>
+                    }
                     multiline
                     variant="outlined"
                     onChange={(e) => handleChangeDescricao(e.target.value)}

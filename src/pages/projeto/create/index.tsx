@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 
+import moment from "moment";
+
 import {
   DialogActions,
   DialogContent,
@@ -46,15 +48,15 @@ export default function FormProjeto(props: Props) {
 
   const { close, ong_id, setNotificacao } = props;
 
-  const [nome, setNome] = useState<string>("");
+  const [nome, setNome] = useState<string | null>("");
 
-  const [descricao, setDescricao] = useState<string>("");
+  const [descricao, setDescricao] = useState<string | null>("");
 
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
 
   const [dataTermino, setDataTermino] = useState<Date | null>(null);
 
-  const [endereco, setEndereco] = useState<string>("");
+  const [endereco, setEndereco] = useState<string | null>("");
 
   const [infoNome, setInfoNome] = useState<string | null>(null);
 
@@ -68,39 +70,99 @@ export default function FormProjeto(props: Props) {
 
   const [enviar, setEnviar] = useState<boolean>(false);
 
+  const handleValidityNome = () => {
+    if (nome !== null) {
+      setInfoNome("");
+    }
+  };
+
   const handleChangeNome = (value: string) => {
-    setNome(value);
+    if (value === "") {
+      setNome(null);
+    } else {
+      setNome(value);
+    }
+  };
+
+  const handleValidityDescricao = () => {
+    if (descricao !== null) {
+      setInfoDescricao("");
+    } else {
+      setInfoDescricao(null);
+    }
   };
 
   const handleChangeDescricao = (value: string) => {
-    setDescricao(value);
+    if (value === "") {
+      setDescricao(null);
+    } else {
+      setDescricao(value);
+    }
   };
 
   const handleChangeDataInicio = (date: Date | null) => {
     setDataInicio(date);
   };
 
-  const handleChangeDataTermino = (date: Date | null) => {
-    console.log(dataInicio?.getTime(), date?.getTime());
-    if ((dataInicio && date) && (dataInicio?.getTime() > date?.getTime())) {
-      setInfoDataTermino("A data de término não pode ser menor que a data de inicio");
+  const handleValidityDataInicio = () => {
+    if (dataInicio !== null) {
+      setInfoDataInicio("");
+    } else {
+      setInfoDataInicio(null);
     }
+  }
 
-    setDataTermino(date);
+  const handleValidityDataTermino = (dateInicio: Date, dateTermino: Date) => {
+    var inicio = new Date(moment(dateInicio).format("MM/DD/YYYY"));
+
+    var termino = new Date(moment(dateTermino).format("MM/DD/YYYY"));
+
+    var diff = Math.floor(termino.getTime() - inicio.getTime());
+    var day = 1000 * 60 * 60 * 24;
+
+    var days = Math.floor(diff/day);
+    var months = Math.floor(days/31);
+    var years = Math.floor(months/12);
+    
+    console.log(days, months, years);
+
+    if (days < 0 && months <= 0 && years <= 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  const handleChangeDataTermino = (date: Date | null) => {
+    if ((dataInicio && date) && (handleValidityDataTermino(dataInicio, date))) {
+      setInfoDataTermino("A data de término não pode ser menor que a data de inicio");
+    } else {
+      setDataTermino(date);
+    }
+  };
+
+  const handleValidityEndereco = () => {
+    if (endereco !== null) {
+      setInfoEndereco("");
+    }
   };
 
   const handleChangeEndereco = (value: string) => {
-    setEndereco(value);
+    if (value === "") {
+      setEndereco(null);
+    } else {
+      setEndereco(value);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (nome === "") {
+    if (infoNome === null) {
       setInfoNome("Campo obrigatório");
     }
 
-    if (descricao === "") {
+    if (infoDescricao === null) {
       setInfoDescricao("Campo obrigatório");
     }
 
@@ -112,11 +174,11 @@ export default function FormProjeto(props: Props) {
       setInfoDataTermino("Campo obrigatório");
     }
 
-    if (endereco === "") {
+    if (infoEndereco === null) {
       setInfoEndereco("Campo obrigatório");
     }
 
-    if (dataInicio !== null && dataTermino !== null && ong_id !== undefined && infoDataTermino !== "A data de término não pode ser menor que a data de inicio") {
+    if (nome && descricao && endereco && dataInicio && dataTermino && ong_id && infoDataTermino !== "A data de término não pode ser menor que a data de inicio") {
       setEnviar(true);
 
       const response = await CreateProjeto({
@@ -127,7 +189,7 @@ export default function FormProjeto(props: Props) {
         endereco,
         ong_id,
       });
-
+      
       if (response) {
         setEnviar(false);
 
@@ -135,40 +197,46 @@ export default function FormProjeto(props: Props) {
 
         setNotificacao("Projeto criado com sucesso!");
       } else {
-        setEnviar(true);
+        setEnviar(false);
+
+        setNotificacao("Houve um erro ao tentar criar o projeto, tente novamente");
       }
     }
   };
 
   useEffect(() => {
-    if (nome !== "" && infoNome !== null) {
-      setInfoNome(null);
+    if (nome !== "") {
+      handleValidityNome();
     }
-  }, [infoNome, nome]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nome]);
 
   useEffect(() => {
-    if (descricao !== "" && infoDescricao !== null) {
-      setInfoDescricao(null);
+    if (descricao !== "") {
+      handleValidityDescricao();
     }
-  }, [descricao, infoDescricao]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [descricao]);
 
   useEffect(() => {
-    if (dataInicio !== null && infoDataInicio !== null) {
-      setInfoDataInicio(null);
+    if (dataInicio !== null) {
+      handleValidityDataInicio();
     }
-  }, [dataInicio, infoDataInicio]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataInicio]);
 
   useEffect(() => {
-    if (dataTermino !== null && infoDataTermino !== null) {
+    if (dataTermino !== null) {
       setInfoDataTermino(null);
     }
-  }, [dataTermino, infoDataTermino]);
+  }, [dataTermino]);
 
   useEffect(() => {
-    if (endereco !== "" && infoEndereco !== null) {
-      setInfoEndereco(null);
+    if (endereco !== "" ) {
+      handleValidityEndereco();
     }
-  }, [endereco, infoEndereco]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endereco]);
 
   if (enviar) {
     return (
@@ -199,6 +267,7 @@ export default function FormProjeto(props: Props) {
             margin="dense"
             id="descricao"
             label="Descrição"
+            multiline
             helperText={
               <Typography variant="subtitle2" color="error">
                 {infoDescricao}

@@ -30,6 +30,17 @@ interface OngProjeto {
   nome: string;
 }
 
+interface VoluntarioProjeto {
+  id: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  dataNascimento: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+}
+
 interface Response {
   projetos: Array<{
     id: number;
@@ -42,6 +53,7 @@ interface Response {
     created_at: string;
     deleted_at: string;
     ong: OngProjeto | null;
+    voluntarios: Array<VoluntarioProjeto | undefined>;
   }>;
   error: string | null;
 }

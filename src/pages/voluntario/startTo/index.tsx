@@ -230,7 +230,7 @@ const VoluntarioListProjetosStartTo: React.FC = () => {
               height: "93vh",
             }}
           >
-            <h1>Você não possui nenhum projeto passado até agora!</h1>
+            <h1>Você não possui nenhum projeto que começará!</h1>
             <img src={SmilePhoto}></img>
           </div>
         ) : (

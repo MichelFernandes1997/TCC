@@ -34,7 +34,18 @@ interface OngProjeto {
   nome: string;
 }
 
-interface Projeto {
+interface VoluntarioProjeto {
+  id: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  dataNascimento: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+}
+
+interface ProjetosWithVoluntarios {
   id: number;
   nome: string;
   descricao: string;
@@ -45,6 +56,7 @@ interface Projeto {
   created_at: string;
   deleted_at: string;
   ong: OngProjeto | null;
+  voluntarios: Array<VoluntarioProjeto | undefined>;
 }
 
 interface Paginate {
@@ -74,7 +86,7 @@ const ProjetosStarted: React.FC = () => {
 
   const { StartedProjetos, user } = useContext(AuthContext);
 
-  const [projetos, setProjetos] = useState<Array<Projeto> | null>(null);
+  const [projetos, setProjetos] = useState<Array<ProjetosWithVoluntarios> | null>(null);
 
   const [pagination, setPagination] = useState<Paginate | null>(null);
 
@@ -263,6 +275,20 @@ const ProjetosStarted: React.FC = () => {
                       <Typography variant="body2" color="textPrimary" component="p">
                         {`${Math.round(Math.abs(new Date(projeto.dataInicio).getTime() - new Date(projeto.dataTermino).getTime()) / (24 * 60 * 60 * 1000))} dias`}
                       </Typography>
+                      <h3>Total de voluntários: </h3>
+                      <Typography variant="body2" color="textPrimary">
+                        {`${projeto?.voluntarios.length}`}
+                      </Typography>
+                      {projeto?.voluntarios.map((voluntario) => {
+                        if (voluntario?.id === user?.id) {
+                          return (
+                            <><h3></h3>
+                            <Typography variant="body1" color="secondary" component="p">
+                              Você é voluntário nesse projeto
+                            </Typography></>
+                          );
+                        }
+                      })}
                     </CardContent>
                     <CardActions>
                       <Box

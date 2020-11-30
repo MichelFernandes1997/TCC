@@ -178,7 +178,7 @@ interface AuthContextoDados {
   ProjetosAll(url?: string): Promise<Array<Projetos> | false>;
   ShowProjeto(id: number): Promise<ProjetosWithVoluntarios | false>;
   StartToProjetos(ongId: number, url?: string): Promise<Array<Projetos> | false>;
-  StartedProjetos(url?: string): Promise<Array<Projetos> | false>;
+  StartedProjetos(url?: string): Promise<Array<ProjetosWithVoluntarios> | false>;
   PassedProjetos(url?: string): Promise<Array<Projetos> | false>;
   ListOngs(url?: string): Promise<Array<Ongs> | false>;
   UpdateProjeto(

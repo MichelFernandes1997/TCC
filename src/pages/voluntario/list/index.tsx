@@ -230,7 +230,7 @@ const VoluntarioListProjetos: React.FC = () => {
               height: "93vh",
             }}
           >
-            <h1>Você não é voluntário em nenhum projeto acontecendo atualmente!</h1>
+            <h1>Você não possui nenhum projeto atualmente!</h1>
             <img src={SmilePhoto}></img>
           </div>
         ) : (
