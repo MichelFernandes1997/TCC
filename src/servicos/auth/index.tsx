@@ -10,8 +10,8 @@ interface ResponseLogout {
 }
 
 interface Credentials {
-  username: string;
-  password: string;
+  username: string | null;
+  password: string | null;
 }
 
 interface Voluntario {

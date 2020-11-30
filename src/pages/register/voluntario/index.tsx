@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
+
+import moment from "moment";
 
 import { useHistory } from "react-router-dom";
 
@@ -107,21 +109,23 @@ const Voluntario: React.FC = () => {
     null
   );
 
-  const [infoCpf, setInfoCpf] = useState<string | null>("");
+  const [infoCpf, setInfoCpf] = useState<string | null>(null);
 
-  const [confirmaSenha, setConfirmaSenha] = useState<string | null>("");
+  const [confirmaSenha, setConfirmaSenha] = useState<string | null>(null);
 
   const [infoEmail, setInfoEmail] = useState<string | null>(null);
+
+  const [infoNomeCompleto, setInfoNomeCompleto] = useState<string | null>(null);
 
   const [infoData, setInfoData] = useState<string | null>(null);
 
   const [windowWidth, setWindowWidth] = useState<number | null>(null);
 
-  const handleValidityNomeCompleto = (): boolean => {
-    if (nomeCompleto === "") {
-      return false;
-    } else {
-      return true;
+  const formInvalido = useRef<object>({}) as any;
+
+  const handleValidityNomeCompleto = () => {
+    if (nomeCompleto !== null) {
+      setInfoNomeCompleto("");
     }
   };
 
@@ -133,12 +137,36 @@ const Voluntario: React.FC = () => {
     }
   };
 
+  const handleValidityData = (today: Date, selectedDate: Date) => {
+    var today = new Date(moment(today).format("MM/DD/YYYY"));
+
+    var selectedDate = new Date(moment(selectedDate).format("MM/DD/YYYY"));
+
+    var diff = Math.floor(today.getTime() - selectedDate.getTime());
+    var day = 1000 * 60 * 60 * 24;
+
+    var days = Math.floor(diff/day);
+    var months = Math.floor(days/31);
+    var years = Math.floor(months/12);
+    
+    if (days > 5844 && months >= 188 && years >= 15) {
+      setInfoData("");
+    } else {
+      setInfoData("Você não pode ter menos de 16 anos de idade para se cadastrar na plataforma!");
+    }
+  }
+
   const handleChangeData = (date: Date | null) => {
     if (infoData === "Campo obrigatório") {
       setInfoData(null);
     }
 
-    setData(date);
+    if (date) {
+      setData(date);
+    } else {
+      setData(null);
+    }
+    
   };
 
   const handleValidityCpf = () => {
@@ -297,6 +325,16 @@ const Voluntario: React.FC = () => {
             } as InfoSenha | null)
         );
       }
+
+      if (infoSenha?.error !== "") {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              error: "",
+            } as InfoSenha | null)
+        );
+      }
     } else {
       setInfoSenha(null);
     }
@@ -337,24 +375,28 @@ const Voluntario: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    var infoNomeCompleto = handleValidityNomeCompleto();
-
-    var formInvalido = false as boolean;
-
     if (infoEmail === null) {
-      formInvalido = true;
+      formInvalido.current.infoEmail = true;
 
       setInfoEmail("Campo obrigatório");
+    } else if (infoEmail !== "") {
+      formInvalido.current.infoEmail = true;
+    } else {
+      formInvalido.current.infoEmail = false;
     }
 
     if (infoCpf === null) {
-      formInvalido = true;
+      formInvalido.current.infoCpf = true;
 
       setInfoCpf("Campo obrigatório");
+    } else if (infoCpf !== "") {
+      formInvalido.current.infoCpf = true;
+    } else {
+      formInvalido.current.infoCpf = false;
     }
 
     if (infoSenha === null) {
-      formInvalido = true;
+      formInvalido.current.infoSenha = true;
 
       setInfoSenha({
         error: "Campo obrigatório",
@@ -364,25 +406,48 @@ const Voluntario: React.FC = () => {
         errorNumbers: "",
         errorMinimumCaracteres: "",
       });
+    } else if(infoSenha.error !== "" || infoSenha.errorSpecialsChars !== "" || infoSenha.errorUpperCase !== "" || infoSenha.errorLowerCase !== "" || infoSenha.errorNumbers !== "" || infoSenha.errorMinimumCaracteres !== "") {
+      formInvalido.current.infoSenha = true;
+    } else {
+      formInvalido.current.infoSenha = false;
     }
 
     if (infoConfirmaSenha === null) {
-      formInvalido = true;
+      formInvalido.current.infoConfirmaSenha = true;
 
       setInfoConfirmaSenha("Campo obrigatório");
+    } else if (infoConfirmaSenha === "Campo obrigatório" || infoConfirmaSenha === "As senhas digitadas não são iguais") {
+      formInvalido.current.infoConfirmaSenha = true;
+    } else {
+      formInvalido.current.infoConfirmaSenha = false;
     }
 
-    if (!infoNomeCompleto) {
-      formInvalido = true;
+    if (infoNomeCompleto !== "") {
+      formInvalido.current.infoNomeCompleto = true;
+
+      setInfoNomeCompleto("Campo obrigatório");
+    } else {
+      formInvalido.current.infoNomeCompleto = false;
+    }
+
+    if (infoData === "Você não pode ter menos de 16 anos de idade para se cadastrar na plataforma!") {
+      formInvalido.current.infoData = true;
+
+      setInfoData("Você não pode ter menos de 16 anos de idade para se cadastrar na plataforma!")
+    } else {
+      formInvalido.current.infoData = false;
     }
 
     if (data === null) {
-      formInvalido = true;
+      formInvalido.current.data = true;
 
       setInfoData("Campo obrigatório");
+    } else {
+      formInvalido.current.data = false;
     }
-
-    if (!formInvalido) {
+    
+    if (!formInvalido.current.data && !formInvalido.current.infoData && !formInvalido.current.infoNomeCompleto && !formInvalido.current.infoConfirmaSenha && !formInvalido.current.infoSenha && !formInvalido.current.infoCpf && !formInvalido.current.infoEmail) {
+      //console.log(formInvalido.current.infoCpf);
       const voluntario = {
         nomeCompleto,
         dataNascimento: data,
@@ -400,27 +465,45 @@ const Voluntario: React.FC = () => {
   };
 
   useEffect(() => {
+    if (nomeCompleto !== "") {
+      handleValidityNomeCompleto();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nomeCompleto]);
+
+  useEffect(() => {
     if (email !== "") {
       handleValidityEmail();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email]);
+
+  useEffect(() => {
+    if (data !== null) {
+      handleValidityData(new Date(), data);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   useEffect(() => {
     if (cpf !== "") {
       handleValidityCpf();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cpf]);
 
   useEffect(() => {
     if (confirmaSenha !== "") {
       handleValidityConfirmaSenha();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [confirmaSenha]);
 
   useEffect(() => {
     if (senha !== "") {
       handleValiditySenha();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [senha]);
 
   useEffect(() => {
@@ -431,7 +514,7 @@ const Voluntario: React.FC = () => {
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
-  }, [window]);
+  }, []);
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
@@ -470,7 +553,11 @@ const Voluntario: React.FC = () => {
                     id="nomeCompleto"
                     label="Nome Completo"
                     value={nomeCompleto}
-                    helperText=""
+                    helperText={
+                      <Typography variant="subtitle2" color="error">
+                        {infoNomeCompleto}
+                      </Typography>
+                    }
                     variant="outlined"
                     className={classes.fullWidth}
                     onChange={(e) => handleChangeNomeCompleto(e.target.value)}
@@ -517,14 +604,16 @@ const Voluntario: React.FC = () => {
                   </MuiPickersUtilsProvider>
                   <Typography
                     style={
-                      infoData !== "Campo obrigatório"
-                        ? { display: "none" }
-                        : {}
+                      infoData === ""
+                        ?
+                          { display: "none" }
+                        : 
+                          {}
                     }
                     variant="subtitle2"
                     color="error"
                   >
-                    {infoData}
+                    {infoData !== "" ? infoData : ""}
                   </Typography>
                 </Grid>
                 <Grid
@@ -638,12 +727,24 @@ const Voluntario: React.FC = () => {
                   />
                 </Grid>
                 <Grid item xs={12}></Grid>
+                <Grid item xs={4}>
+                  <Button
+                    color="secondary"
+                    variant="contained"
+                    onClick={(e) => handleSendTo("/")}
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    Voltar ao login
+                  </Button>
+                </Grid>
                 <Grid item xs={4} />
                 <Grid item xs={4}>
                   <Button
                     color="primary"
-                    variant="contained"
                     type="submit"
+                    variant="contained"
                     style={{
                       width: "100%",
                     }}
@@ -651,7 +752,6 @@ const Voluntario: React.FC = () => {
                     Cadastrar
                   </Button>
                 </Grid>
-                <Grid item xs={4} />
               </Grid>
             </Box>
           </CardContent>

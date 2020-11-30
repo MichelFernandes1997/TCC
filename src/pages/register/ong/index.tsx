@@ -116,15 +116,15 @@ const Ong: React.FC = () => {
 
   const [infoEmail, setInfoEmail] = useState<string | null>(null);
 
+  const [infoNome, setInfoNome] = useState<string | null>(null);
+
   const [infoData, setInfoData] = useState<string | null>(null);
 
   const [windowWidth, setWindowWidth] = useState<number | null>(null);
 
-  const handleValidityNome = (): boolean => {
-    if (nome === "") {
-      return false;
-    } else {
-      return true;
+  const handleValidityNome = () => {
+    if (nome === null) {
+      setInfoNome(null);
     }
   };
 
@@ -345,8 +345,6 @@ const Ong: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    var infoNome = handleValidityNome();
-
     var formInvalido = false as boolean;
 
     if (infoEmail === null) {
@@ -380,8 +378,10 @@ const Ong: React.FC = () => {
       setInfoConfirmaSenha("Campo obrigatório");
     }
 
-    if (!infoNome) {
+    if (infoNome === null) {
       formInvalido = true;
+
+      setInfoNome("Campo obrigatório");
     }
 
     if (dataCriacao === null) {
@@ -413,27 +413,38 @@ const Ong: React.FC = () => {
   };
 
   useEffect(() => {
+    if (nome !== "") {
+      handleValidityNome();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nome]);
+
+  useEffect(() => {
     if (email !== "") {
       handleValidityEmail();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email]);
 
   useEffect(() => {
     if (cnpj !== "") {
       handleValidityCnpj();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cnpj]);
 
   useEffect(() => {
     if (confirmaSenha !== "") {
       handleValidityConfirmaSenha();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [confirmaSenha]);
 
   useEffect(() => {
     if (senha !== "") {
       handleValiditySenha();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [senha]);
 
   useEffect(() => {
@@ -444,7 +455,7 @@ const Ong: React.FC = () => {
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
-  }, [window]);
+  }, []);
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
@@ -484,7 +495,11 @@ const Ong: React.FC = () => {
                     label="Nome"
                     value={nome}
                     placeholder="Nome"
-                    helperText=""
+                    helperText={
+                      <Typography variant="subtitle2" color="error">
+                        {infoNome}
+                      </Typography>
+                    }
                     variant="outlined"
                     className={classes.fullWidth}
                     onChange={(e) => handleChangeNome(e.target.value)}
@@ -670,6 +685,18 @@ const Ong: React.FC = () => {
                   />
                 </Grid>
                 <Grid item xs={12}></Grid>
+                <Grid item xs={4}>
+                  <Button
+                    color="secondary"
+                    variant="contained"
+                    onClick={(e) => handleSendTo("/")}
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    Voltar ao login
+                  </Button>
+                </Grid>
                 <Grid item xs={4} />
                 <Grid item xs={4}>
                   <Button
@@ -683,21 +710,6 @@ const Ong: React.FC = () => {
                     Cadastrar
                   </Button>
                 </Grid>
-                <Grid item xs={4} />
-                <Grid item xs={4} />
-                <Grid item xs={4}>
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    onClick={(e) => handleSendTo("/")}
-                    style={{
-                      width: "100%",
-                    }}
-                  >
-                    Login
-                  </Button>
-                </Grid>
-                <Grid item xs={4} />
               </Grid>
             </Box>
           </CardContent>

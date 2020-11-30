@@ -23,6 +23,15 @@ import { useHistory } from "react-router-dom";
 
 import Ong from "../../assets/images/logo.png";
 
+interface InfoSenha {
+  error: string | null;
+  errorSpecialsChars: string;
+  errorUpperCase: string;
+  errorLowerCase: string;
+  errorNumbers: string;
+  errorMinimumCaracteres: string;
+}
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     /*containerButtons: {
@@ -75,28 +84,152 @@ const Login: React.FC = () => {
 
   const history = useHistory();
 
-  const [email, setEmail] = useState<string>("");
+  const [email, setEmail] = useState<string | null>("");
 
-  const [senha, setSenha] = useState<string>("");
+  const [senha, setSenha] = useState<string | null>("");
 
-  const [infoEmail, setInfoEmail] = useState<string>("");
+  const [infoEmail, setInfoEmail] = useState<string | null>(null);
+
+  const [infoSenha, setInfoSenha] = useState<InfoSenha | null>(null);
 
   const handleValidityEmail = () => {
-    const regexValidityEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    if (email !== null) {
+      const regexValidityEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
-    if (!regexValidityEmail.test(email)) {
-      setInfoEmail("O email digitado não possui um formato válido");
+      if (!regexValidityEmail.test(email)) {
+        setInfoEmail("O email digitado não possui um formato válido");
+      } else {
+        setInfoEmail("");
+      }
     } else {
-      setInfoEmail("");
+      setInfoEmail(null);
+    }
+  };
+
+  const handleValiditySenha = () => {
+    if (senha !== null) {
+      let validitySpecialChars = /^(?=.*[@!#$%^&*()/\\])/; // /^(?=.*[@!#$%^&*()/\\])(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[@!#$%^&*()/\\a-zA-Z0-9]{8,20}$/;
+
+      let validityNumbers = /^(?=.*[0-9])/;
+
+      let validityUpperCase = /^(?=.*[A-Z])/;
+
+      let validityLowerCase = /^(?=.*[a-z])/;
+
+      let validityMinimumCaracteres = /^[@!#$%^&*()/\\a-zA-Z0-9]{8,20}$/;
+
+      if (infoSenha !== null) {
+        if (!validitySpecialChars.test(senha)) {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                error: null,
+                errorSpecialsChars:
+                  "* É necessário pelo menos um caractere especial",
+              } as InfoSenha | null)
+          );
+        } else {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorSpecialsChars: "",
+              } as InfoSenha | null)
+          );
+        }
+
+        if (!validityNumbers.test(senha)) {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorNumbers: "* É necessário pelo menos um número",
+              } as InfoSenha | null)
+          );
+        } else {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorNumbers: "",
+              } as InfoSenha | null)
+          );
+        }
+
+        if (!validityUpperCase.test(senha)) {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorUpperCase: "* É necessário pelo menos uma letra maiúscula",
+              } as InfoSenha | null)
+          );
+        } else {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorUpperCase: "",
+              } as InfoSenha | null)
+          );
+        }
+
+        if (!validityLowerCase.test(senha)) {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorLowerCase: "* É necessário pelo menos uma letra minúscula",
+              } as InfoSenha | null)
+          );
+        } else {
+          setInfoSenha(
+            (prevState) =>
+              ({
+                ...prevState,
+                errorLowerCase: "",
+              } as InfoSenha | null)
+          );
+        }
+      }
+
+      if (!validityMinimumCaracteres.test(senha)) {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorMinimumCaracteres: "* É necessário no mínimo 8 caracteres",
+            } as InfoSenha | null)
+        );
+      } else {
+        setInfoSenha(
+          (prevState) =>
+            ({
+              ...prevState,
+              errorMinimumCaracteres: "",
+            } as InfoSenha | null)
+        );
+      }
+    } else {
+      setInfoSenha(null);
+    }
+  };
+
+  const handleChangeSenha = (input: string) => {
+    if (input !== "") {
+      setSenha(input);
+    } else {
+      setSenha(null);
     }
   };
 
   const handleChangeEmail = (input: string) => {
-    setEmail(input);
-  };
-
-  const handleChangeSenha = (input: string) => {
-    setSenha(input);
+    if (input !== "") {
+      setEmail(input);
+    } else {
+      setEmail(null);
+    }
   };
 
   const handleSendTo = (event: React.MouseEvent<HTMLElement>) => {
@@ -106,14 +239,45 @@ const Login: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    Logar({ username: email, password: senha });
+    var formInvalido = false as boolean;
+
+    if (email === "") {
+      formInvalido = true;
+
+      setInfoEmail("Campo obrigatório");
+    }
+
+    if (infoSenha === null) {
+      formInvalido = true;
+
+      setInfoSenha({
+        error: "Campo obrigatório",
+        errorSpecialsChars: "",
+        errorUpperCase: "",
+        errorLowerCase: "",
+        errorNumbers: "",
+        errorMinimumCaracteres: "",
+      });
+    }
+    
+    if (!formInvalido) {
+      Logar({ username: email, password: senha });
+    }
   };
 
   useEffect(() => {
     if (email !== "") {
       handleValidityEmail();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email]);
+
+  useEffect(() => {
+    if (senha !== "") {
+      handleValiditySenha();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [senha]);
 
   return (
     <Box
@@ -135,12 +299,13 @@ const Login: React.FC = () => {
               justifyContent: "center",
             }}
           >
-            <Grid container>
-              <Grid item xs={12} className={classes.align}>
+            <Grid container style={{height: "100%"}}>
+              <Grid item xs={12} className={classes.align} style={{height: "80%"}}>
                 <img
                   src={Ong}
                   alt="Logo da landing page"
                   className={classes.logoOngs}
+                  style={{ height: "100%" }}
                 />
               </Grid>
               <Grid item xs={12} className={classes.align}>
@@ -241,7 +406,65 @@ const Login: React.FC = () => {
                             label="Senha"
                             type="password"
                             value={senha}
-                            helperText="Lembre-se que a senha deve ter no mínimo uma letra maiúscula, uma minúscula, um número, um caractere especial e no mínimo 8 caracteres"
+                            helperText={
+                              infoSenha !== null ? (
+                                infoSenha.error === "Campo obrigatório" ? (
+                                  <Typography variant="subtitle2" color="error">
+                                    {infoSenha.error}
+                                  </Typography>
+                                ) : (
+                                  <Typography variant="subtitle2" color="error">
+                                    {infoSenha.errorSpecialsChars !== "" &&
+                                    (infoSenha.errorNumbers !== "" ||
+                                      infoSenha.errorUpperCase !== "" ||
+                                      infoSenha.errorLowerCase !== "" ||
+                                      infoSenha.errorMinimumCaracteres !== "") ? (
+                                      <p>{infoSenha.errorSpecialsChars}</p>
+                                    ) : (
+                                      infoSenha.errorSpecialsChars
+                                    )}
+                                    {infoSenha.errorNumbers !== "" &&
+                                    (infoSenha.errorSpecialsChars !== "" ||
+                                      infoSenha.errorUpperCase !== "" ||
+                                      infoSenha.errorLowerCase !== "" ||
+                                      infoSenha.errorMinimumCaracteres !== "") ? (
+                                      <p>{infoSenha.errorNumbers}</p>
+                                    ) : (
+                                      infoSenha.errorNumbers
+                                    )}
+                                    {infoSenha.errorUpperCase !== "" &&
+                                    (infoSenha.errorSpecialsChars !== "" ||
+                                      infoSenha.errorNumbers !== "" ||
+                                      infoSenha.errorLowerCase !== "" ||
+                                      infoSenha.errorMinimumCaracteres !== "") ? (
+                                      <p>{infoSenha.errorUpperCase}</p>
+                                    ) : (
+                                      infoSenha.errorUpperCase
+                                    )}
+                                    {infoSenha.errorLowerCase !== "" &&
+                                    (infoSenha.errorUpperCase !== "" ||
+                                      infoSenha.errorNumbers !== "" ||
+                                      infoSenha.errorSpecialsChars !== "" ||
+                                      infoSenha.errorMinimumCaracteres !== "") ? (
+                                      <p>{infoSenha.errorLowerCase}</p>
+                                    ) : (
+                                      infoSenha.errorLowerCase
+                                    )}
+                                    {infoSenha.errorMinimumCaracteres !== "" &&
+                                    (infoSenha.errorUpperCase !== "" ||
+                                      infoSenha.errorNumbers !== "" ||
+                                      infoSenha.errorSpecialsChars !== "" ||
+                                      infoSenha.errorLowerCase !== "") ? (
+                                      <p>{infoSenha.errorMinimumCaracteres}</p>
+                                    ) : (
+                                      infoSenha.errorMinimumCaracteres
+                                    )}
+                                  </Typography>
+                                )
+                              ) : (
+                                ""
+                              )
+                            }
                             variant="outlined"
                             className={classes.senhaInput}
                             onChange={(e) => handleChangeSenha(e.target.value)}
